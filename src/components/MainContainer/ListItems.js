@@ -8,10 +8,11 @@ import LayersIcon from '@material-ui/icons/Layers';
 import {makeStyles} from "@material-ui/core";
 import CallReceivedIcon from '@material-ui/icons/CallReceived';
 import SvgIcon from "@material-ui/core/SvgIcon";
-import SvgPlantaIcon from "./Icons/PlantaIcon";
-import SvgPerformanceIcon from "./Icons/PerformanceIcon";
-import SvgDespachoIcon from "./Icons/DespachoIcon";
-
+import SvgPlantaIcon from "../../Icons/PlantaIcon";
+import SvgPerformanceIcon from "../../Icons/PerformanceIcon";
+import SvgDespachoIcon from "../../Icons/DespachoIcon";
+import {Link} from "react-router-dom";
+import {useLocation} from 'react-router-dom'
 const useStyles = makeStyles({
     listItem: {
         color: 'white',
@@ -23,21 +24,25 @@ const useStyles = makeStyles({
 
 
 
-export default function ListItems() {
+export default function ListItems(props) {
+    const location = useLocation();
     const classes = useStyles();
     return (
         <div className={classes.listItem}>
-            <ListItem button >
+            <ListItem button component={Link} to ="/" selected={location.pathname === '/'}
+                      onClick={ () => props.changeTitle('Dashboard')} >
                 <ListItemIcon className={classes.icon}>
                     <DashboardIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Dashboard"/>
             </ListItem>
-            <ListItem button>
+            <ListItem button  component= { Link } to="/recepcion" selected={location.pathname === '/recepcion'}
+                      onClick={ () => props.changeTitle('Recepción')}>
                 <ListItemIcon className={classes.icon}>
                     <CallReceivedIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Recepción"/>
+
             </ListItem>
             <ListItem button>
                 <ListItemIcon className={classes.icon}>
@@ -69,6 +74,8 @@ export default function ListItems() {
                 </ListItemIcon>
                 <ListItemText primary="Integrations"/>
             </ListItem>
+
         </div>
+
     )
 }
