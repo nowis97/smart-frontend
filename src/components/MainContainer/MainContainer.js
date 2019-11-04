@@ -13,13 +13,11 @@ import smart_logo from './../../assets/smart_logo.png';
 import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItems from "./ListItems";
 import Dashboard from "../Dashboard";
 import Recepcion from "../RecepcionForm/Recepcion";
 import {Route, Switch} from 'react-router-dom'
-import {Icon} from "@material-ui/core";
-import {Picture} from "react-responsive-picture";
+import Ingreso from "../IngresoForm/Ingreso";
 function Copyright() {
     return (
         <Typography variant="body2" color="textSecondary" align="center">
@@ -205,6 +203,9 @@ export default function MainContainer(props) {
                         </Route>
                         <Route path = "/recepcion" >
                             <Recepcion />
+                        </Route>
+                        <Route path = "/ingreso">
+                            <Ingreso/>
                         </Route>
                     </Switch>
 

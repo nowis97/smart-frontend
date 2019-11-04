@@ -36,6 +36,15 @@ export default function ListItems(props) {
                 </ListItemIcon>
                 <ListItemText primary="Dashboard"/>
             </ListItem>
+
+            <ListItem button  component= { Link } to="/ingreso" selected={location.pathname === '/ingreso'}
+                      onClick={ () => props.changeTitle('Ingreso')}>
+                <ListItemIcon className={classes.icon}>
+                    <CallReceivedIcon/>
+                </ListItemIcon>
+                <ListItemText primary="Ingresp"/>
+
+            </ListItem>
             <ListItem button  component= { Link } to="/recepcion" selected={location.pathname === '/recepcion'}
                       onClick={ () => props.changeTitle('Recepción')}>
                 <ListItemIcon className={classes.icon}>

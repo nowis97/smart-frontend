@@ -73,11 +73,7 @@ const getStepContent =  (step) => {
 };
 
 export default function Recepcion (props) {
-    const muiTheme = getThemeProps({
-        stepper: {
-            iconColor: 'green' // or logic to change color
-        }
-    });
+
     const [neumatico, setNeumatico] = React.useState({
         serie:'',
         rtd:0,
