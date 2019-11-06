@@ -1,12 +1,7 @@
 import React from "react";
 
 const SvgDespachoIcon = props => (
-  <svg
-    id="despacho-icon_svg__Layer_1"
-    data-name="Layer 1"
-    viewBox="0 0 30.08 25.57"
-    {...props}
-  >
+  <svg id="despacho-icon_svg__Layer_1" viewBox="0 0 30.08 25.57" {...props}>
     <defs>
       <style>{".despacho-icon_svg__cls-1{fill:none}"}</style>
     </defs>

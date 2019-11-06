@@ -18,6 +18,9 @@ import Dashboard from "../Dashboard";
 import Recepcion from "../RecepcionForm/Recepcion";
 import {Route, Switch} from 'react-router-dom'
 import Ingreso from "../IngresoForm/Ingreso";
+import {useLocation,useRouteMatch,withRouter} from 'react-router-dom';
+
+//import Ingreso from "../IngresoForm/Ingreso";
 function Copyright() {
     return (
         <Typography variant="body2" color="textSecondary" align="center">
@@ -124,14 +127,18 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+function MainContainer(props) {
+    console.log(useLocation());
+    useEffect(() =>{
+        if (window.innerWidth<=760) handleDrawerClose();
+    },[]);
+    let { path, url } = useRouteMatch();
 
-export default function MainContainer(props) {
-
-
-
+    console.log(path,url);
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
     const [title, setTitle] = React.useState('Dashboard');
+    //const [width,setWidth] = React.useState(window.innerWidth);
 
 
     const changeTitle = React.useCallback((title) => {
@@ -145,11 +152,8 @@ export default function MainContainer(props) {
     };
 
 
-
-
-
-
     return (
+        <>
         <div className={classes.root}>
             <CssBaseline />
             <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -198,15 +202,10 @@ export default function MainContainer(props) {
             <main className={classes.content}>
                 <div className={classes.appBarSpacer} />
                     <Switch>
-                        <Route exact path = "/dashboard" >
-                            <Dashboard />
-                        </Route>
-                        <Route path = "/recepcion" >
-                            <Recepcion />
-                        </Route>
-                        <Route path = "/ingreso">
-                            <Ingreso/>
-                        </Route>
+                        <Route  path = "/dashboard" component={Dashboard} />
+                        <Route   path = "/ingreso" component = {Ingreso}/>
+                        <Route   path = "/recepcion" component = {Recepcion} />
+
                     </Switch>
 
 
@@ -214,5 +213,8 @@ export default function MainContainer(props) {
                 <Copyright />
             </main>
         </div>
+        </>
     );
 }
+
+export default (MainContainer);

@@ -12,7 +12,8 @@ import SvgPlantaIcon from "../../Icons/PlantaIcon";
 import SvgPerformanceIcon from "../../Icons/PerformanceIcon";
 import SvgDespachoIcon from "../../Icons/DespachoIcon";
 import {Link} from "react-router-dom";
-import {useLocation} from 'react-router-dom'
+import {useLocation,useHistory} from 'react-router-dom'
+import SvgNeumaticoIcon from "../../Icons/NeumaticoIcon";
 const useStyles = makeStyles({
     listItem: {
         color: 'white',
@@ -26,29 +27,30 @@ const useStyles = makeStyles({
 
 export default function ListItems(props) {
     const location = useLocation();
+    const history = useHistory();
     const classes = useStyles();
     return (
         <div className={classes.listItem}>
-            <ListItem button component={Link} to ="/" selected={location.pathname === '/'}
-                      onClick={ () => props.changeTitle('Dashboard')} >
+            <ListItem button component={Link} to ="dashboard" selected={location.pathname === '/dashboard'}
+                      onClick={ () => {props.changeTitle('Dashboard');}} >
                 <ListItemIcon className={classes.icon}>
                     <DashboardIcon/>
                 </ListItemIcon>
                 <ListItemText primary="Dashboard"/>
             </ListItem>
 
-            <ListItem button  component= { Link } to="/ingreso" selected={location.pathname === '/ingreso'}
-                      onClick={ () => props.changeTitle('Ingreso')}>
+            <ListItem button component= { Link } to="ingreso" selected={location.pathname === '/ingreso'}
+                      onClick={ () => {props.changeTitle('Ingreso')}}>
                 <ListItemIcon className={classes.icon}>
                     <CallReceivedIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Ingresp"/>
+                <ListItemText primary="Ingreso"/>
 
             </ListItem>
-            <ListItem button  component= { Link } to="/recepcion" selected={location.pathname === '/recepcion'}
+            <ListItem button  component= { Link } to="recepcion" selected={location.pathname === '/recepcion'}
                       onClick={ () => props.changeTitle('Recepción')}>
                 <ListItemIcon className={classes.icon}>
-                    <CallReceivedIcon/>
+                    <SvgIcon> <SvgNeumaticoIcon/></SvgIcon>
                 </ListItemIcon>
                 <ListItemText primary="Recepción"/>
 

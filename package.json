@@ -13,6 +13,8 @@
     "clsx": "latest",
     "date-fns": "^2.6.0",
     "formik": "^1.5.8",
+    "js-cookie": "^2.2.1",
+    "notistack": "^0.9.5",
     "react": "^16.11.0",
     "react-device-detect": "^1.9.10",
     "react-dom": "^16.11.0",
@@ -26,7 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "svgr": "svgr -d src/Icons/ /icons"
+    "svgr": "npx svgr -d src/Icons/ icons"
   },
   "eslintConfig": {
     "extends": "react-app"

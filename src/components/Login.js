@@ -11,8 +11,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import SmartLogo from '../assets/smart_logo_negro.png';
-
+import {useSnackbar} from "notistack";
 import auth from '../services/auth';
+import {useHistory,useLocation} from "react-router-dom";
 
 
 function Copyright() {
@@ -59,30 +60,57 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const signup = async (e) =>{
-    e.preventDefault();
-   await auth('Astaldi','123456789');
-};
 
-export default function SignIn() {
+
+export default function Login(props) {
     const classes = useStyles();
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const history = useHistory();
+    const location = useLocation();
 
+
+    const [login,setLogin] =React.useState({
+        userId:'',
+        password:'',
+    });
+
+    const handleChange = e => {
+        const {id ,value } = e.currentTarget;
+        setLogin(prevState => ({
+            ...prevState,
+            [id]:value
+        }))
+    };
+
+    const signup = async (e) =>{
+        e.preventDefault();
+        const result = await auth.login(login.userId,login.password);
+        console.log(result);
+        if('token' in result){
+            history.push('/');
+        }else{
+            enqueueSnackbar('Credenciales Incorrectas',{variant:'error'});
+            return false
+        }
+    };
     return (
         <Container component="main" maxWidth="xs">
+
             <CssBaseline />
             <div className={classes.paper}>
                     <img src={SmartLogo} className={classes.img} alt={""}/>
-                <form className={classes.form} onSubmit={signup}>
+                <form className={classes.form} onSubmit={signup} >
                     <TextField
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        id="id"
+                        id="userId"
                         label="ID de usuario"
                         name="id"
                         autoComplete="id"
                         autoFocus
+                        onChange={handleChange}
                     />
                     <TextField
                         variant="outlined"
@@ -94,6 +122,7 @@ export default function SignIn() {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        onChange={handleChange}
                     />
                     { /*<FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
