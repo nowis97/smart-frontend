@@ -3,24 +3,8 @@ import Paper from "@material-ui/core/Paper";
 import Container from "@material-ui/core/Container";
 import React from "react";
 import clsx from "clsx";
-import { makeStyles } from '@material-ui/core/styles';
-import {withRouter} from 'react-router-dom';
 
-const useStyles = () => makeStyles({
-    container: {
-        paddingTop: 4,
-        paddingBottom: 4,
-    },
-    fixedHeight: {
-        height: 240,
-    },
-    paper: {
-    padding: 2,
-        display: 'flex',
-        overflow: 'auto',
-        flexDirection: 'column',
-}
-});
+import useStyles from "../styles/Dashboard";
 
 export default function Dashboard(props) {
     const classes = useStyles();
@@ -29,11 +13,13 @@ export default function Dashboard(props) {
     return (
         <Container maxWidth="lg" className={classes.container}>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={3} >
             {/* Chart */}
             <Grid item xs={12} md={8} lg={9}>
                 <Paper className={fixedHeightPaper}>
-
+                    <iframe width="990" height="580"
+                        src="https://app.powerbi.com/view?r=eyJrIjoiMTAxMzU3MmMtOTNjNy00MTVjLWFlMWEtMmViM2MwMDlkZjkwIiwidCI6ImFkYzQxYjk1LWEyOWItNGRhNS1hNGZmLWU4Y2U2NGM4MWY2MSIsImMiOjZ9"
+                        frameBorder="0" allowFullScreen="true"/>
                 </Paper>
             </Grid>
             {/* Recent Deposits */}

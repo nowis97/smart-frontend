@@ -1,0 +1,26 @@
+.MuiStepIcon-root.MuiStepIcon-active {
+    color: #f47b20 !important;
+}
+.MuiStepIcon-root.MuiStepIcon-completed {
+    color: #f47b20 !important;
+}
+
+.MuiStepLabel-label {
+    font-size: larger !important;
+}
+
+.MuiSwitch-colorSecondary.Mui-checked{
+    color: #f47b20 !important;
+}
+
+.MuiSwitch-colorSecondary.Mui-checked + .MuiSwitch-track {
+    background-color: #f47b20 !important;
+}
+
+.MuiRadio-colorSecondary.Mui-checked {
+    color: #f47b20 !important;
+}
+
+.MuiCheckbox-colorSecondary.Mui-checked{
+    color: #f47b20 !important;
+}

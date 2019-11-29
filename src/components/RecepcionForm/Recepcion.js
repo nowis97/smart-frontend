@@ -1,113 +1,105 @@
-import { makeStyles } from '@material-ui/core/styles';
-import Button from "@material-ui/core/Button";
+
 import React from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
+import MUIDataTable from 'mui-datatables';
 import InformacionNeumatico from "./InformacionNeumatico";
-import getThemeProps from '@material-ui/styles/getThemeProps';
-import './Recepcion.css'
-import InformacionRecepcion from "./InformacionRecepcion";
-import Revision from "./Revision";
-const useStyle = () => makeStyles(theme => ({
-
-    layout: {
-
-        width: 'auto',
-        marginLeft: theme.spacing(2),
-        marginRight: theme.spacing(2),
-        [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-            width: 600,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-        },
-    },
-    paper: {
-        marginTop: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-        padding: theme.spacing(3),
-        [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-            marginTop: theme.spacing(6),
-            marginBottom: theme.spacing(6),
-            padding: theme.spacing(3),
-        },
+import Modal from 'react-responsive-modal';
+import '../../styles/Recepcion.css';
+import useStyle from "../../styles/Recepcion";
 
 
-    },
-    stepper: {
-        padding: theme.spacing(3, 0, 5),
-        alignContent:'center',
-
-    },
-    buttons: {
-        display: 'flex',
-        justifyContent: 'flex-end',
-        paddingBottom:theme.spacing(2)
-    },
-    button: {
-        marginTop: theme.spacing(3),
-        marginLeft: theme.spacing(3),
-        marginBottom: theme.spacing(3),
-        paddingBottom: theme.spacing(2)
-    },
-
-}));
-
-export const FormRecepcionContext = React.createContext();
+const columns = ["Name", "Title", "Location", "Age", "Salary"];
 
 
-const steps = ['Información Neumático', 'Información Recepción', 'Revisión'];
+const data = [
+    ["Gabby George", "Business Analyst", "Minneapolis", 30, "$100,000"],
+    ["Aiden Lloyd", "Business Consultant", "Dallas", 55, "$200,000"],
+    ["Jaden Collins", "Attorney", "Santa Ana", 27, "$500,000"],
+    ["Franky Rees", "Business Analyst", "St. Petersburg", 22, "$50,000"],
+    ["Aaren Rose", "Business Consultant", "Toledo", 28, "$75,000"],
+    [
+        "Blake Duncan",
+        "Business Management Analyst",
+        "San Diego",
+        65,
+        "$94,000"
+    ],
+    ["Frankie Parry", "Agency Legal Counsel", "Jacksonville", 71, "$210,000"],
+    ["Lane Wilson", "Commercial Specialist", "Omaha", 19, "$65,000"],
+    ["Robin Duncan", "Business Analyst", "Los Angeles", 20, "$77,000"],
+    ["Mel Brooks", "Business Consultant", "Oklahoma City", 37, "$135,000"],
+    ["Harper White", "Attorney", "Pittsburgh", 52, "$420,000"],
+    ["Kris Humphrey", "Agency Legal Counsel", "Laredo", 30, "$150,000"],
+    ["Frankie Long", "Industrial Analyst", "Austin", 31, "$170,000"],
+    ["Brynn Robbins", "Business Analyst", "Norfolk", 22, "$90,000"],
+    ["Justice Mann", "Business Consultant", "Chicago", 24, "$133,000"],
+    [
+        "Addison Navarro",
+        "Business Management Analyst",
+        "New York",
+        50,
+        "$295,000"
+    ],
+    ["Jesse Welch", "Agency Legal Counsel", "Seattle", 28, "$200,000"],
+    ["Eli Mejia", "Commercial Specialist", "Long Beach", 65, "$400,000"],
+    ["Gene Leblanc", "Industrial Analyst", "Hartford", 34, "$110,000"],
+    ["Danny Leon", "Computer Scientist", "Newark", 60, "$220,000"],
+    ["Lane Lee", "Corporate Counselor", "Cincinnati", 52, "$180,000"],
+    ["Jesse Hall", "Business Analyst", "Baltimore", 44, "$99,000"],
+    ["Danni Hudson", "Agency Legal Counsel", "Tampa", 37, "$90,000"],
+    ["Terry Macdonald", "Commercial Specialist", "Miami", 39, "$140,000"],
+    ["Justice Mccarthy", "Attorney", "Tucson", 26, "$330,000"],
+    ["Silver Carey", "Computer Scientist", "Memphis", 47, "$250,000"],
+    ["Franky Miles", "Industrial Analyst", "Buffalo", 49, "$190,000"],
+    ["Glen Nixon", "Corporate Counselor", "Arlington", 44, "$80,000"],
+    [
+        "Gabby Strickland",
+        "Business Process Consultant",
+        "Scottsdale",
+        26,
+        "$45,000"
+    ],
+    ["Mason Ray", "Computer Scientist", "San Francisco", 39, "$142,000"]
+];
 
-const getStepContent =  (step) => {
-    switch (step) {
-        case 0:
-            return <InformacionNeumatico/>;
-        case 1:
-            return  <InformacionRecepcion/>;
-        case 2:
-            return <Revision/>;
-    }
-};
+
+
+
 
 export default function Recepcion (props) {
+
+    const [open, setOpen] = React.useState(false);
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const [neumatico, setNeumatico] = React.useState({
         serie:'',
         rtd:0,
-        hrs_operacion:0,
-        kms_operacion:0,
+        hrsOperacion:0,
+        kmsOperacion:0,
         marca: '',
         medida:'',
         modelo:''
 
     });
 
-    const [recepcion,setRecepcion] = React.useState({
-        cliente: '',
-        causa_recepcion:'',
-        guia_despecho:'',
-        patente_camion:'',
-        guia_kt:false,
-        fecha:null
-    });
+    const options = {
+        onRowClick  : data => handleOpen()
+    };
 
 
     const classes = useStyle();
-    const [activeStep, setActiveStep ] = React.useState(0);
-
-    const handleNext = () => {
-      setActiveStep(activeStep+1);
-    };
-    const handleBack = () => {
-        setActiveStep(activeStep-1);
-    };
 
 
-    return (
-        <React.Fragment>
+    /*<React.Fragment>
             <CssBaseline />
             <FormRecepcionContext.Provider value = {[neumatico,setNeumatico,recepcion,setRecepcion]}>
             <main className={classes.layout} style={{margin:'15px'}}>
@@ -167,6 +159,32 @@ export default function Recepcion (props) {
             </FormRecepcionContext.Provider>
 
 
+        </React.Fragment>*/
+
+    return (
+
+        <React.Fragment>
+            <CssBaseline />
+            <main className={classes.layout} style={{margin:'15px'}}>
+                <Paper className={classes.paper}>
+                    <Typography component="h1" variant="h5" align="center" style={{paddingTop:'15px'}}>
+                        Recepción de Neumaticos
+                    </Typography>
+                    <hr style={{marginTop:'1rem',marginBottom:'1rem',border:0,borderTop: '1px solid rgba(0,0,0,0.1)'}}/>
+                    <MUIDataTable data={data} columns={columns} title={'Employee list'} options={options}/>
+                    <hr style={{marginTop:'1rem',marginBottom:'1rem',border:0,borderTop: '1px solid rgba(0,0,0,0.1)'}}/>
+
+
+                </Paper>
+            </main>
+
+
+             <Modal onClose={handleClose} open={open} center focusTrapped={false}>
+                <InformacionNeumatico/>
+
+            </Modal>
         </React.Fragment>
+
+
     );
 }

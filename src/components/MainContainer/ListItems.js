@@ -14,16 +14,8 @@ import SvgDespachoIcon from "../../Icons/DespachoIcon";
 import {Link} from "react-router-dom";
 import {useLocation,useHistory} from 'react-router-dom'
 import SvgNeumaticoIcon from "../../Icons/NeumaticoIcon";
-const useStyles = makeStyles({
-    listItem: {
-        color: 'white',
-    },
-    icon:{
-        color:'white'
-    }
-});
-
-
+import useStyles from "../../styles/ListItems";
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 export default function ListItems(props) {
     const location = useLocation();
@@ -55,7 +47,10 @@ export default function ListItems(props) {
                 <ListItemText primary="Recepción"/>
 
             </ListItem>
-            <ListItem button>
+
+            <ListItem button component = {Link} to={"planta"} selected={location.pathname ==='/planta'}
+                      onClick={() => props.changeTitle('Planta')}
+            >
                 <ListItemIcon className={classes.icon}>
                 <SvgIcon><SvgPlantaIcon/></SvgIcon>
                 </ListItemIcon>
@@ -79,11 +74,12 @@ export default function ListItems(props) {
                 </ListItemIcon>
                 <ListItemText primary="Reportes"/>
             </ListItem>
-            <ListItem button >
+            <ListItem button component={Link} to={"cliente"} selected={location.pathname === '/cliente'}
+                onClick={()=> props.changeTitle('Cliente')}>
                 <ListItemIcon className={classes.icon}>
-                    <LayersIcon/>
+                    <PersonAddIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Integrations"/>
+                <ListItemText primary="Clientes"/>
             </ListItem>
 
         </div>

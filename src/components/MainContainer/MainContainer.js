@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,128 +18,35 @@ import Dashboard from "../Dashboard";
 import Recepcion from "../RecepcionForm/Recepcion";
 import {Route, Switch} from 'react-router-dom'
 import Ingreso from "../IngresoForm/Ingreso";
-import {useLocation,useRouteMatch,withRouter} from 'react-router-dom';
+import {useLocation,useRouteMatch,withRouter,useHistory} from 'react-router-dom';
+import Cookie from 'js-cookie';
+import Planta from "../PlantaForm/Planta";
+import useStyles from "../../styles/MainContainer";
+import Copyright from "./Copyright";
+import Cliente from "../Cliente";
 
-//import Ingreso from "../IngresoForm/Ingreso";
-function Copyright() {
-    return (
-        <Typography variant="body2" color="textSecondary" align="center">
-            {'Copyright © '}
-            <Link color="inherit" href="http://www.kaltiremining.com/">
-                Kal Tire MTG
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
 
-const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex',
-    },
-    toolbar: {
-        paddingRight: 24, // keep right padding when drawer closed
-        backgroundColor: '#383838'
-    },
-    toolbarIcon: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        padding: '0 8px',
-        ...theme.mixins.toolbar,
-    },
-    appBar: {
-        zIndex: theme.zIndex.drawer + 1,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    appBarShift: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
-    menuButton: {
-        marginRight: 36,
-    },
-    menuButtonHidden: {
-        display: 'none',
-    },
-    title: {
-        flexGrow: 1,
-    },
-    drawerPaper: {
-        position: 'relative',
-        whiteSpace: 'nowrap',
-        width: drawerWidth,
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        backgroundColor:'#383838'
-
-    },
-    drawerPaperClose: {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-            width: theme.spacing(9),
-        },
-        backgroundColor:'#383838'
-    },
-    appBarSpacer: theme.mixins.toolbar,
-    content: {
-        flexGrow: 1,
-        height: '100vh',
-        overflow: 'auto',
-    },
-    container: {
-        paddingTop: theme.spacing(4),
-        paddingBottom: theme.spacing(4),
-    },
-    paper: {
-        padding: theme.spacing(2),
-        display: 'flex',
-        overflow: 'auto',
-        flexDirection: 'column',
-    },
-    fixedHeight: {
-        height: 240,
-    },
-    icon:{
-        color:'white',
-    },
-    img:{
-        overflow: 'auto',
-        height: '45px',
-        width: '280px'
-    }
-}));
 
 function MainContainer(props) {
-    console.log(useLocation());
+    const history = useHistory();
+    const location = useLocation();
+    console.log(location);
     useEffect(() =>{
         if (window.innerWidth<=760) handleDrawerClose();
-    },[]);
-    let { path, url } = useRouteMatch();
+        setUser(Cookie.get('username'));
 
-    console.log(path,url);
+    },[]);
+
+
+
+    const [user,setUser] =  React.useState('');
+
     const classes = useStyles();
     const [open, setOpen] = React.useState(true);
-    const [title, setTitle] = React.useState('Dashboard');
-    //const [width,setWidth] = React.useState(window.innerWidth);
+    const [title, setTitle] = React.useState('SMART');
 
+    console.log(location.state);
 
     const changeTitle = React.useCallback((title) => {
         setTitle(title);
@@ -170,6 +77,9 @@ function MainContainer(props) {
                     </IconButton>
                     <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
                         {title}
+                    </Typography>
+                    <Typography variant={"subtitle2"} gutterBottom color={"inherit"} noWrap className={classes.subTitle}>
+                        {user?user.toUpperCase():""}
                     </Typography>
                     {/*<IconButton color="inherit">
                         <Badge badgeContent={4} color="secondary">
@@ -205,7 +115,8 @@ function MainContainer(props) {
                         <Route  path = "/dashboard" component={Dashboard} />
                         <Route   path = "/ingreso" component = {Ingreso}/>
                         <Route   path = "/recepcion" component = {Recepcion} />
-
+                        <Route path="/planta" component = {Planta}/>
+                        <Route path={"/cliente"} component={Cliente}/>
                     </Switch>
 
 

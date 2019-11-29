@@ -1,0 +1,9 @@
+.styles_overlay__CLSq-{
+    z-index: 1300;
+}
+
+.MuiDialog-root{
+    z-index: 5000 !important;
+}
+
+
