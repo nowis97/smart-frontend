@@ -6,4 +6,8 @@
     z-index: 5000 !important;
 }
 
+.ReactModal__Overlay.ReactModal__Overlay--after-open{
+    z-index: 1300 !important;
+
+}
 
