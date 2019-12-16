@@ -23,6 +23,8 @@ export default function InformacionNeumatico(props) {
     const [marcas,setMarcas] = React.useState([]);
     const [medidas,setMedidas] = React.useState([]);
     const [modelos,setModelos] = React.useState([]);
+    const [compuestos, setCompuestos] = React.useState([]);
+
 
     const loading = marcas.length ===0 || medidas.length ===0;
 
@@ -61,16 +63,35 @@ export default function InformacionNeumatico(props) {
     };
 
     React.useEffect(()=>{
-        resources.obtenerMedidasSegunMarca(neumatico.marca).then(res => setMedidas(res)).catch(()=> setMedidas([]));
-        resources.obtenerModelosSegunMarcaMedida(neumatico.marca,neumatico.medida).then(res => setModelos(res)).catch(()=>setModelos([]))
-    },[neumatico.marca,neumatico.medida]);
+
+        if (neumatico.marca !=='' )
+            resources.obtenerMedidasSegunMarca(neumatico.marca).then(res => setMedidas(res)).catch(()=> setMedidas([]));
+
+    },[neumatico.marca]);
+
+    React.useEffect(()=>{
+        if (neumatico.medida !=='')
+            resources.obtenerModelosSegunMarcaMedida(neumatico.marca,neumatico.medida).then(res => setModelos(res)).catch(()=>setModelos([]))
+    },[neumatico.medida]);
+
+    React.useEffect(()=>{
+       if (neumatico.modelo !== ''){
+           resources.obtenerNumeroCatalogo(neumatico.marca,neumatico.medida,neumatico.modelo).then((res=>{
+               if (res.length>1) {
+                   setCompuestoField(true);
+                   resources.obtenerCompuestos(neumatico.marca,neumatico.medida,neumatico.modelo).then(res=>setCompuestos(res))
+
+
+               }
+           }))
+       }
+    },[neumatico.modelo]);
 
     const handleSubmit = e =>{
         e.preventDefault();
     };
     const {errors,isValid} = useYup(neumatico, validationSchema, {validateOnChange: true});
 
-    console.log(medidas);
 
 
     return (
@@ -96,7 +117,7 @@ export default function InformacionNeumatico(props) {
                                                                          }}/>)}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
-                        <Autocomplete id={'medida'} options={medidas} getOptionLabel={option => option.size}
+                        <Autocomplete id={'medida'} options={medidas} getOptionLabel={option => option.size} onChange={handleChangeAutoComplete('medida')}
                                       renderInput={params => (<TextField {...params} label={"Medida"} style={{width:'200px'}} required   InputProps={{
                                           ...params.InputProps,
                                           endAdornment: (
@@ -108,12 +129,12 @@ export default function InformacionNeumatico(props) {
                                       }}/>)}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
-                        <Autocomplete id={'modelo'} options={modelos} getOptionLabel={option => option.patternTreadDesign}
+                        <Autocomplete id={'modelo'} options={modelos} getOptionLabel={option => option.patternTreadDesign} onChange={handleChangeAutoComplete('modelo')}
                                       renderInput={params => (<TextField {...params} label={"Modelo"} style={{width:'200px'}} required />)}/>
                     </Grid>
                     {compuestoField?
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
-                        <Autocomplete id={'compuesto'}
+                        <Autocomplete id={'compuesto'} options={compuestos} getOptionLabel={option => option.compound}
                                       renderInput={params => (<TextField {...params} label={"Compuesto"} required style={{width:'200px',transform:'traslateY(17px)'}} />)}/>
                     </Grid>:null
                     }

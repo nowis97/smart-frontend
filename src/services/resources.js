@@ -19,12 +19,14 @@ const obtenerMedidasSegunMarca = async (marca) =>{
 };
 
 const obtenerModelosSegunMarcaMedida = async (marca,medida) => (await axios
-    .get(URI + `catalogo/modelo/${marca}/${medida}`)).data;
+    .get(URI + `catalogo/modelo/${marca}/${encodeURIComponent(medida)}`)).data;
 
 const obtenerNumeroCatalogo = async (marca,medida,modelo,compuesto) => (await axios
-    .get(URI + `catalogo/numero-catalogo/${marca}/${medida}/${modelo}`, {
-        params: {'compuesto': compuesto ? compuesto : ''}
-    })).data;
+    .get(URI + `catalogo/numero-catalogo/${marca}/${ encodeURIComponent(medida)}/${modelo}/${compuesto}`
+    )).data;
+
+const obtenerCompuestos = async (marca,medida,modelo) => (await axios
+    .get(URI + `catalogo/compuesto/${marca}/${encodeURIComponent(medida)}/${modelo}`)).data;
 
 export default {obtenerTipoMinas,obtenerRegiones,obtenerMarcas,obtenerMedidasSegunMarca,
-    obtenerNumeroCatalogo,obtenerModelosSegunMarcaMedida};
+    obtenerNumeroCatalogo,obtenerModelosSegunMarcaMedida,obtenerCompuestos};
