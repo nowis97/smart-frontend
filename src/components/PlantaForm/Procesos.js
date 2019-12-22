@@ -1,65 +1,76 @@
 import React from "react";
-import {Checkbox, Container, FormControlLabel, FormGroup, Switch} from "@material-ui/core";
+import {Checkbox, Container, FormControlLabel, FormGroup, RadioGroup, Switch} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import TipoReparacion from "./TipoReparacion";
 import {PlantaContext} from "./Planta";
 import Renovado from "./Renovado";
+import Radio from "@material-ui/core/Radio";
 
 
 export default function (props) {
 
     let {dispatch, state} = React.useContext(PlantaContext);
 
-    const [tipoProceso, setTipoProceso] = React.useState({
-        reparacion: false,
-        renovado: false,
-    });
+    // const [tipoProceso, setTipoProceso] = React.useState({
+    //     reparacion: false,
+    //     renovado: false,
+    // });
+
+    let tipoProceso = state.initialStateForms;
+
 
     const handleGarantia = name => event => {
+        debugger;
         let e = event.currentTarget;
         dispatch({type: 'HANDLE_PROCESOS_GARANTIA', payload: {name, e}})
     };
     const selectTipoProceso = () => {
         if (tipoProceso.reparacion) {
+
             return <TipoReparacion/>;
         } else if (tipoProceso.renovado) {
             return <Renovado/>;
-        } else return null;
+        } else {
+
+            return null;
+        }
     };
 
-    const handleChange = name => e => {
-        setTipoProceso({...setTipoProceso, [name]: e.target.checked});
+    const handleChange = (event,value) => {
+        let e = event.currentTarget;
+        dispatch({type: 'HANDLE_FORM_STATUS',payload: {value,e}});
     };
 
 
     return (
         <React.Fragment>
             <Container>
-                <Grid container direction={"row"} justify={"center"}>
-
-                    <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
-
+                <Grid container direction={"row"} justify={"center"} spacing={2} style={{transform:'translateX(15px)'}}>
+                    <RadioGroup row onChange={handleChange}>
                         <FormControlLabel control={
-                            <Switch checked={tipoProceso.reparacion || false}  onChange={handleChange('reparacion')}/>
+                            <Radio />
+
                         }
                                           label={
                                               "Reparaciones"
                                           }
-                                          value={tipoProceso.reparacion}
-                        />
-                    </Grid>
+                                          value={'reparacion'}
+                                          checked={tipoProceso.reparacion}
 
-                    <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
+                        />
+
 
                         <FormControlLabel control={
-                            <Switch checked={tipoProceso.renovado || false}  onChange={handleChange('renovado')}/>
+                            <Radio />
                         }
                                           label={
                                               "Renovados"
                                           }
-                                          value={tipoProceso.renovado}
+                                          value={'renovado'}
+                                          checked={tipoProceso.renovado}
                         />
-                    </Grid>
+
+                    </RadioGroup>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
 
                         <FormControlLabel control={
@@ -73,12 +84,12 @@ export default function (props) {
                                           value={state.initialStateReparaciones.garantia}
                         />
                     </Grid>
-
+                </Grid>
 
                     {selectTipoProceso()}
 
 
-                </Grid>
+
             </Container>
         </React.Fragment>
     );

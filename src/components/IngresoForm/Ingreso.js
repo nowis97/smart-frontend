@@ -33,7 +33,7 @@ const initialState = {
     guiaDespacho: '',
     guiaKaltire: false,
     patenteCamion: '',
-    fecha: Date.now(),
+    fecha: (new Date(Date.now())),
     comentarios: '',
     fotoNeumatico: []
 };
@@ -86,7 +86,6 @@ export default function (props) {
             }));
             return;
         }
-        debugger;
         let id = e.target.id;
         let value = e.target.value || (e.target.value ==='' && e.target.checked ===false)?e.target.value:e.target.checked;
         console.log(id,value);
@@ -109,8 +108,6 @@ export default function (props) {
 
         e.preventDefault();
 
-        debugger;
-
         if(!isValid) return;
 
         const response = await serviceIngreso.ingresarNeumatico(ingreso);
@@ -121,6 +118,7 @@ export default function (props) {
         if(response.toLocaleString().includes('Error')){
            enqueueSnackbar(response.data,{variant:"error"});
         }else if(response.id){
+            clearForm();
             enqueueSnackbar('Neumatico Ingresado', {variant:"success"})
         }else{
             enqueueSnackbar(response.error.message,{variant:'failed'})

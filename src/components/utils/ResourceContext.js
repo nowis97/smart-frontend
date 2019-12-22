@@ -33,7 +33,7 @@ export default function ResourceProvider(props) {
                 setValue(prevState => ({...prevState,['tipoMinas']:response}))
 
             }
-        ).catch(() => []);
+        );
 
 
         resources.obtenerRegiones().then(
@@ -41,8 +41,20 @@ export default function ResourceProvider(props) {
                 setValue(prevState => ({ ...prevState,['regiones']:response}))
             }
 
-        ).catch(()=> []);
+        );
 
+        resources.obtenerCodigos()
+            .then(response =>
+                setValue(prevState => ({...prevState,['codigosBajas']:response}))
+            );
+
+        resources.obtenerPlantas().then(
+            response => setValue(prevState => ({...prevState,['plantas']:response}))
+        );
+
+        resources.obtenerCondicionFinal().then(
+            response => setValue(prevState => ({...prevState,['condicionFinal']:response}))
+        );
 
 
     };

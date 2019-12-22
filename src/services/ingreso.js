@@ -33,6 +33,7 @@ const ingresarNeumatico = async ingreso =>{
 
     ingreso.fotoNeumatico = resp.filename;
     ingreso.guiaKaltire = Number(ingreso.guiaKaltire);
+    ingreso.fecha = new Date(ingreso.fecha);
 
     delete ingreso.reSerie;
    ingreso = helpers.renameProps(ingreso,{

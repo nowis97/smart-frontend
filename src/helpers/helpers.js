@@ -4,4 +4,7 @@ const renameProps = (obj, keysMap) => Object
         ...acc,
         ...{ [keysMap[key] || key]: obj[key] }
     }), {});
+
+
 export {renameProps};
+

@@ -15,6 +15,21 @@ const plantaReducer = (state, action)=>{
             return {...state,initialStatePlanta:
                     {...state.initialStatePlanta,[action.payload.id]:action.payload.e}};
 
+        case 'HANDLE_PLANTA_AUTOCOMPLETE':
+            id = action.payload.id;
+            if( !action.payload.value)
+                return update(state,{
+                    initialStatePlanta:{
+                        [id]:{$set:''}
+                    }
+                });
+            value = action.payload.value.id || action.payload.value.code;
+            return update(state,{
+                initialStatePlanta:{
+                    [id]:{$set:value}
+                }
+            });
+
         case 'HANDLE_PROCESOS':
         //return {...state,
         case 'HANDLE_PROCESOS_GARANTIA':
@@ -63,6 +78,18 @@ const plantaReducer = (state, action)=>{
                     }
                 }
             });
+
+        case 'HANDLE_FORM_STATUS':
+            id = action.payload.value;
+            value = action.payload.e.checked;
+            debugger;
+            if (id ==='reparacion') state = update(state,{initialStateForms:{ 'renovado':{$set:!value}}});
+            else state = update(state,{initialStateForms:{'reparacion':{$set:!value}}});
+
+            return update(state,{
+                initialStateForms: {[id]:{$set:value}}
+            });
+
 
         default:
             return state;

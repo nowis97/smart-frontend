@@ -15,6 +15,8 @@ import Revision from "./Revision";
 import Confirmacion from "../utils/Confirmacion";
 import SaveIcon from '@material-ui/icons/Save';
 import useStyle from "../../styles/Planta";
+import DialogActions from "@material-ui/core/DialogActions";
+import Container from "@material-ui/core/Container";
 
 
 const initialStateForms = {
@@ -28,7 +30,7 @@ const initialStateForms = {
 
 const initialStatePlanta={
     planta:'',
-    mesProduccion:null,
+    mesProduccion:(new Date(Date.now())) ,
     ordenTrabajo: '',
     codigoBaja:'',
     condicionFinal:''
@@ -88,7 +90,7 @@ const getStepContent =  (step) => {
 
 
 export default function Planta(props) {
-    const [state,dispatch] =React.useReducer(plantaReducer,{initialStatePlanta,initialStateReparaciones,initialStateRenovados});
+    const [state,dispatch] =React.useReducer(plantaReducer,{initialStatePlanta,initialStateReparaciones,initialStateRenovados,initialStateForms});
     const classes = useStyle();
     const [activeStep, setActiveStep ] = React.useState(0);
 
@@ -108,18 +110,23 @@ export default function Planta(props) {
         setOpenDialog(true);
     };
 
+    const handleSubmit = (e) =>{
+        e.preventDefault();
+        handleNext();
+
+    };
+
 
     return (
         <React.Fragment>
             <CssBaseline />
             <PlantaContext.Provider value ={{state,dispatch}}>
-                <main className={classes.layout} style={{margin:'15px'}}>
-                    <Paper className={classes.paper}>
-                        <Typography component="h1" variant="h5" align="center" style={{paddingTop:'15px'}}>
+                <Container component={'main'}>
+                        <Typography variant="h6" gutterBottom >
                             Planta
                         </Typography>
                         <hr style={{marginTop:'1rem',marginBottom:'1rem',border:0,borderTop: '1px solid rgba(0,0,0,0.1)'}}/>
-                        <Stepper activeStep={activeStep} className={classes.stepper} alternativeLabel orientation={"horizontal"} style={{padding:'5px', marginTop:'20px'}}>
+                        <Stepper activeStep={activeStep} className={classes.stepper} alternativeLabel orientation={"horizontal"} style={{padding:'5px', marginTop:'20px'}} >
                             {steps.map(label => (
                                 <Step  key={label}>
                                     <StepLabel  >{label}</StepLabel>
@@ -141,8 +148,9 @@ export default function Planta(props) {
                                 </React.Fragment>
                             ) : (
                                 <React.Fragment>
+                                    <form onSubmit={handleSubmit}>
                                     {getStepContent(activeStep)}
-                                    <div className={classes.buttons} >
+                                    <DialogActions>
                                         {activeStep !== 0 && (
                                             <Button onClick={handleBack}  className={classes.button} style={{marginBottom:'15px'}}
                                             >
@@ -153,7 +161,7 @@ export default function Planta(props) {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                onClick={handleNext}
+                                                type={"submit"}
                                                 className={classes.button}
                                                 style={{marginBottom: '15px', backgroundColor: '#f47b20'}}
 
@@ -173,19 +181,13 @@ export default function Planta(props) {
                                             Guardar
                                             </Button>
                                         }
-                                    </div>
+                                    </DialogActions>
+                                    </form>
 
                                 </React.Fragment>
                             )}
                         </React.Fragment>
-
-                    </Paper>
-                    <Button className={classes.button} style={{marginBottom:'15px'}} onClick={() => console.log(state)}
-                    >
-                        dEFAULT
-                    </Button>
-
-                </main>
+                </Container>
 
             </PlantaContext.Provider>
             {/*openDialog? <Confirmacion title = "Planta" message ="¿Desea guardar?" fnFalse = {() =>{}} />:null*/}

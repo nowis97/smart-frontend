@@ -24,6 +24,7 @@ import Planta from "../PlantaForm/Planta";
 import useStyles from "../../styles/MainContainer";
 import Copyright from "./Copyright";
 import Cliente from "../Cliente";
+import Recepcionado from "../PlantaForm/Recepcionado";
 
 
 
@@ -115,7 +116,7 @@ function MainContainer(props) {
                         <Route  path = "/dashboard" component={Dashboard} />
                         <Route   path = "/ingreso" component = {Ingreso}/>
                         <Route   path = "/recepcion" component = {Recepcion} />
-                        <Route path="/planta" component = {Planta}/>
+                        <Route path="/planta" component = {Recepcionado}/>
                         <Route path={"/cliente"} component={Cliente}/>
                     </Switch>
 

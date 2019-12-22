@@ -3,36 +3,39 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import MUIDataTable from 'mui-datatables';
-import InformacionNeumatico from "./InformacionNeumatico";
+import Recepcion from "../RecepcionForm/Recepcion";
 import Modal from 'react-responsive-modal';
 import '../../styles/Recepcion.css';
 import useStyle from "../../styles/Recepcion";
 import Button from "@material-ui/core/Button";
 import PhotoIcon from '@material-ui/icons/Photo';
-import {obtenerNeumaticos} from '../../services/ingreso';
+import {obtenerRecepcionados} from '../../services/recepcion';
 import {useSnackbar} from "notistack";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
-import Checkbox from "@material-ui/core/Checkbox";
+import Planta from "./Planta";
+import LoadingComponent from "../utils/LoadingComponent";
 
 const URI = process.env.REACT_APP_API_URL;
 
 
-export default function Recepcion(props) {
+export default function Recepcionado(props) {
     const {enqueueSnackbar} = useSnackbar();
 
-    const [ingresos,setIngresos] = React.useState([]);
+    const [recepcionados,setRecepcionados] = React.useState([]);
     const [openImage,setOpenImage] = React.useState(false);
     const [pathImage,setPathImage] = React.useState('');
+    const [isLoading,setIsLoading] = React.useState(true);
     useEffect(()=>{
-        obtenerNeumaticos()
+        obtenerRecepcionados()
             .then(resp=> {
-                setIngresos(resp.data);})
+                setRecepcionados(resp.data);
+                setIsLoading(false);
+            })
             .catch(err => enqueueSnackbar(err.message,{variant:"error"}) )
     },[]);
 
     const [open, setOpen] = React.useState(false);
-    const [ingreso,setIngreso] = React.useState(0);
 
     const handleOpen = () => {
         setOpen(true);
@@ -46,7 +49,7 @@ export default function Recepcion(props) {
 
     const options = {
         filter: true,
-        onRowClick: data => {handleOpen(); console.log(data); setIngreso(data)},
+        onRowClick: data => {handleOpen(); console.log(data);},
         searchOpen:true,
         responsive: 'scrollMaxHeight',
         fixedHeaderOptions: {
@@ -65,7 +68,7 @@ export default function Recepcion(props) {
             display:false
         }
     },{
-        name: "neumaticosserie",
+        name: "serie",
         label: "Serie",
     }, {
         name: 'faena',
@@ -74,35 +77,23 @@ export default function Recepcion(props) {
         name: 'guia_despacho',
         label: 'Guía de Despacho'
     }, {
-        name: 'patente_camion',
-        label: 'Patente Camión'
+        name: 'kms_operacion',
+        label: 'Kms de Operación'
     }, {
-        name: 'guia_kt',
-        label: 'Guia Kal Tire',
-        options:{
-            empty: true,
-            customBodyRender: (value,tableMeta,updateValue) =>{
-                return (<Checkbox
-                    disabled
-                    checked ={Boolean(value)}
-                    inputProps={{
-                        'aria-label': 'disabled checked checkbox',
-                    }}
-                />)
-            }
-        }
+        name: 'hrs_operacion',
+        label: 'Hrs de Operación',
+    },{
+        name:'rtd',
+        label:'RTD'
     }, {
         name: 'fecha',
         label: 'Fecha',
         options:{
             empty: true,
-            customBodyRender: (value, tableMeta, KQOOSIupdateValue) => {
+            customBodyRender: (value, tableMeta, updateValue) => {
                 return (new Date(Date.parse(value))).toLocaleDateString();
             }
         }
-    }, {
-        name: 'comentario',
-        label: 'Comentarios'
     },
         {
             name: "ruta_foto",
@@ -112,7 +103,7 @@ export default function Recepcion(props) {
                 sort: false,
                 empty: true,
                 customBodyRender: (value, tableMeta, updateValue) =>{
-                   return (<Button
+                    return (<Button
                         variant="contained"
                         onClick={e =>{
                             e.stopPropagation();
@@ -125,7 +116,7 @@ export default function Recepcion(props) {
                     >
                         Ver
                     </Button>)}
-                }
+            }
 
         }];
 
@@ -136,8 +127,9 @@ export default function Recepcion(props) {
             <CssBaseline/>
             <main className={classes.layout} style={{margin: '15px'}}>
                 <Paper className={classes.paper}>
+                    {isLoading && <LoadingComponent/>}
                     <Typography component="h1" variant="h5" align="center" style={{paddingTop: '15px'}}>
-                        Recepción de Neumaticos
+                        Planta
                     </Typography>
                     <hr style={{
                         marginTop: '1rem',
@@ -145,7 +137,7 @@ export default function Recepcion(props) {
                         border: 0,
                         borderTop: '1px solid rgba(0,0,0,0.1)'
                     }}/>
-                    <MUIDataTable data={ingresos} columns={columns}  options={options} />
+                    <MUIDataTable data={recepcionados} columns={columns}  options={options} />
                     <hr style={{
                         marginTop: '1rem',
                         marginBottom: '1rem',
@@ -160,8 +152,7 @@ export default function Recepcion(props) {
             {openImage? <Lightbox mainSrc={URI +'images/'+ pathImage} onCloseRequest={() => setOpenImage(false)}/>:null}
 
             <Modal onClose={handleClose} open={open} center focusTrapped={false}>
-                <InformacionNeumatico ingresos = {{ingresos,setIngresos}} openModal = {setOpen}  ingreso = {ingreso} />
-
+                <Planta/>
             </Modal>
 
 

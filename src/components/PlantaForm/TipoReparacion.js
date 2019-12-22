@@ -2,19 +2,29 @@ import React from "react";
 import {Checkbox, Container, FormControlLabel, Switch} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Preventiva from "./Preventiva";
-import Typography from "@material-ui/core/Typography";
 import Correctiva from "./Correctiva";
 import KalUltra from "./KalUltra";
 
-export default function () {
-    const [tipoReparacion,setTipoReparacion] = React.useState({
-        preventiva:false,
-        correctiva:false,
-        kalUltra:false
-    });
+import {PlantaContext} from "./Planta";
 
-    const handleChange = name => e => {
-        setTipoReparacion({...tipoReparacion,[name]:e.target.checked});
+export default function () {
+    // const [tipoReparacion,setTipoReparacion] = React.useState({
+    //     preventiva:false,
+    //     correctiva:false,
+    //     kalUltra:false
+    // });
+
+    const {state,dispatch} = React.useContext(PlantaContext);
+
+    const tipoReparacion = state.initialStateForms;
+
+
+
+
+
+    const handleChange = (value,event) => {
+        let e = event.target;
+        dispatch({type:'HANDLE_FORM_STATUS',payload:{value,e}})
     };
 
     return (
