@@ -11,16 +11,10 @@ export default function (props) {
 
     let {dispatch, state} = React.useContext(PlantaContext);
 
-    // const [tipoProceso, setTipoProceso] = React.useState({
-    //     reparacion: false,
-    //     renovado: false,
-    // });
-
     let tipoProceso = state.initialStateForms;
 
 
     const handleGarantia = name => event => {
-        debugger;
         let e = event.currentTarget;
         dispatch({type: 'HANDLE_PROCESOS_GARANTIA', payload: {name, e}})
     };
@@ -37,6 +31,7 @@ export default function (props) {
     };
 
     const handleChange = (event,value) => {
+        event.preventDefault();
         let e = event.currentTarget;
         dispatch({type: 'HANDLE_FORM_STATUS',payload: {value,e}});
     };
@@ -52,10 +47,10 @@ export default function (props) {
 
                         }
                                           label={
-                                              "Reparaciones"
+                                              "Reparacion"
                                           }
                                           value={'reparacion'}
-                                          checked={tipoProceso.reparacion}
+                                          checked={tipoProceso.reparacion || false}
 
                         />
 
@@ -64,10 +59,10 @@ export default function (props) {
                             <Radio />
                         }
                                           label={
-                                              "Renovados"
+                                              "Renovado"
                                           }
                                           value={'renovado'}
-                                          checked={tipoProceso.renovado}
+                                          checked={tipoProceso.renovado || false}
                         />
 
                     </RadioGroup>

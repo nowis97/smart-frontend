@@ -15,6 +15,8 @@ import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import Planta from "./Planta";
 import LoadingComponent from "../utils/LoadingComponent";
+import {format} from 'date-fns';
+
 
 const URI = process.env.REACT_APP_API_URL;
 
@@ -26,6 +28,8 @@ export default function Recepcionado(props) {
     const [openImage,setOpenImage] = React.useState(false);
     const [pathImage,setPathImage] = React.useState('');
     const [isLoading,setIsLoading] = React.useState(true);
+    const [recepcionado,setRecepcionado] = React.useState([]);
+
     useEffect(()=>{
         obtenerRecepcionados()
             .then(resp=> {
@@ -49,8 +53,11 @@ export default function Recepcionado(props) {
 
     const options = {
         filter: true,
-        onRowClick: data => {handleOpen(); console.log(data);},
-        searchOpen:true,
+        onRowClick: data => {setRecepcionado(data);
+        handleOpen();
+        console.log(data);
+        },
+        searchOpen:false,
         responsive: 'scrollMaxHeight',
         fixedHeaderOptions: {
             xAxis: false,
@@ -91,7 +98,7 @@ export default function Recepcionado(props) {
         options:{
             empty: true,
             customBodyRender: (value, tableMeta, updateValue) => {
-                return (new Date(Date.parse(value))).toLocaleDateString();
+                return (format(Date.parse(value),'yyyy-MM-dd'));
             }
         }
     },
@@ -137,7 +144,7 @@ export default function Recepcionado(props) {
                         border: 0,
                         borderTop: '1px solid rgba(0,0,0,0.1)'
                     }}/>
-                    <MUIDataTable data={recepcionados} columns={columns}  options={options} />
+                    <MUIDataTable data={recepcionados} columns={columns}  options={options} title={"Neumáticos Recepcionados"} />
                     <hr style={{
                         marginTop: '1rem',
                         marginBottom: '1rem',
@@ -152,7 +159,7 @@ export default function Recepcionado(props) {
             {openImage? <Lightbox mainSrc={URI +'images/'+ pathImage} onCloseRequest={() => setOpenImage(false)}/>:null}
 
             <Modal onClose={handleClose} open={open} center focusTrapped={false}>
-                <Planta/>
+                <Planta openModal = {setOpen} idRecepcion={parseInt(recepcionado[0])} serie = {recepcionado[1]} recepcionadoFecha = {recepcionado[7]} recepcionadosData = {{setRecepcionados,recepcionados}} />
             </Modal>
 
 

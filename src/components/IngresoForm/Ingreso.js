@@ -14,7 +14,6 @@ import Dropzone from "react-dropzone-uploader";
 import 'react-dropzone-uploader/dist/styles.css';
 import Button from "@material-ui/core/Button";
 import SaveIcon from '@material-ui/icons/Save';
-import uploadImage from '../../services/ingreso';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Autocomplete from "@material-ui/lab/Autocomplete/Autocomplete";
 import useStyles from "../../styles/Ingreso";
@@ -23,6 +22,8 @@ import * as serviceIngreso from '../../services/ingreso'
 import {useSnackbar} from "notistack";
 import useYup from "@usereact/use-yup/lib";
 import {validationSchema} from "../../validators/Ingreso";
+import Confirmacion from "../utils/Confirmacion";
+import {action} from "../utils/ProcessNotification";
 
 
 
@@ -43,14 +44,16 @@ const initialStateClientes = [];
 export default function (props) {
     const classes = useStyles();
     const [ingreso, setIngreso] = React.useState(initialState);
+    const [openDialog,setOpenDialog] = React.useState(false);
+    const [disable,setDisable] = React.useState(false);
+
 
     const [clientes,setClientes] = React.useState(initialStateClientes);
-    const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar,closeSnackbar} = useSnackbar();
     const {errors,isValid} = useYup(ingreso, validationSchema, {validateOnChange: true});
+    const [submitted,setSubmitted] = React.useState(true);
 
-    console.log(errors);
-    const clearSerie = (e) => {
-        console.log(e.currentTarget.id);
+    const clearSerie = () => {
         let serie  = '';
         setIngreso({...ingreso, serie});
     };
@@ -61,7 +64,6 @@ export default function (props) {
             res => setClientes(res)
         ).catch(
             res =>  {
-                console.error(res);
                 setClientes(initialStateClientes);
             }
         )
@@ -78,7 +80,7 @@ export default function (props) {
 
     const handleChange = e => {
         if (e === null) return;
-        if (e.toString() === 'Invalid Date' ) return;
+        //if (e.toString() === 'Invalid Date' ) return;
         if (e instanceof Date) {
             setIngreso(prevState => ({
                 ...prevState,
@@ -88,7 +90,6 @@ export default function (props) {
         }
         let id = e.target.id;
         let value = e.target.value || (e.target.value ==='' && e.target.checked ===false)?e.target.value:e.target.checked;
-        console.log(id,value);
         setIngreso(prevState => ({
             ...prevState,
             [id]: value
@@ -103,34 +104,52 @@ export default function (props) {
         });
 
     };
-    const handleSubmit = async e => {
+
+    const submit = async () => {
+        setDisable(true);
+        const key = enqueueSnackbar('Procesando...',{variant:"info",action:action,persist:true});
+        serviceIngreso.ingresarNeumatico(ingreso).then(res=>{
+
+            enqueueSnackbar('Neumatico Ingresado', {variant: "success"});
+            setIngreso({...ingreso,['serie']:'',['reSerie']:'',['comentarios']:''});
+            setTimeout(()=>{
+                setSubmitted(true);
+            },1);
+        }).catch((error)=>{
+            enqueueSnackbar( error.response?error.response.data.error.message:error.message, {variant: 'error'})
+        }).finally(() => {
+                closeSnackbar(key);
+                setDisable(false);
+            })
+
+    };
 
 
+    const handleSubmit = e => {
         e.preventDefault();
 
-        if(!isValid) return;
-
-        const response = await serviceIngreso.ingresarNeumatico(ingreso);
-
-
-        console.log(response);
-
-        if(response.toLocaleString().includes('Error')){
-           enqueueSnackbar(response.data,{variant:"error"});
-        }else if(response.id){
-            clearForm();
-            enqueueSnackbar('Neumatico Ingresado', {variant:"success"})
-        }else{
-            enqueueSnackbar(response.error.message,{variant:'failed'})
+        if(!isValid){
+            enqueueSnackbar('Campos no validos',{variant:"warning"});
+            return;
         }
+        setOpenDialog(true);
 
 
     };
 
+
     function clearForm() {
         initialState.cliente = ingreso.cliente;
-        setIngreso(initialState);
+        initialState.fotoNeumatico = [];
+        setSubmitted(false);
+        setTimeout(()=>{
+            setSubmitted(true);
+        },1);
     }
+
+    useEffect(()=>{
+        setIngreso(initialState);
+    },[initialState.fotoNeumatico]);
 
     return (<React.Fragment>
         <CssBaseline/>
@@ -149,14 +168,20 @@ export default function (props) {
                     <Grid container spacing={2} direction={"row"} justify={"space-around"} className={classes.root}
                           style={{padding: '15px'}}>
                         <Grid item xs={12} sm={3}>
-                            <TextField id={"serie"} name={"Serie"} label={"Serie"} fullWidth required
+                            <TextField id={"serie"} name={"Serie"} label={"Serie"} fullWidth required autoFocus
                                        className={classes.textField}
                                        margin={"normal"}
                                        inputProps={{
                                            onPaste: event => {
                                                event.preventDefault();
                                                return false
+                                           },
+                                           style:{textTransform:"uppercase"},
+                                           onInput: event => {
+                                               event.target.value = (""+event.target.value).toUpperCase();
                                            }
+
+
                                        }}
                                        error={Boolean(errors.serie)} helperText={errors.serie ? errors.serie : ""}
                                        onChange={handleChange} value={ingreso.serie}
@@ -181,6 +206,10 @@ export default function (props) {
                                            onPaste: event => {
                                                event.preventDefault();
                                                return false
+                                           },
+                                           style:{textTransform:"uppercase"},
+                                           onInput: event => {
+                                               event.target.value = (""+event.target.value).toUpperCase();
                                            }
                                        }}
                                        InputProps={{
@@ -202,6 +231,7 @@ export default function (props) {
                                            margin={"normal"} value={ingreso.guiaDespacho}
                                            error={Boolean(errors.guiaDespacho)}
                                            helperText={errors.guiaDespacho ? errors.guiaDespacho : ""}
+
                                            onChange={handleChange}/>
 
                                 <FormControlLabel
@@ -222,8 +252,9 @@ export default function (props) {
                                 <MuiPickersUtilsProvider  utils={DateFnsUtils}>
                                     <KeyboardDatePicker id={"fecha"} label={"Fecha de Ingreso"}
                                                         format={"dd/MM/yyyy"}
-                                                        KeyboardButtonProps={{'aria-label': 'change-date'}}
+                                                        disableFuture
                                                         showTodayButton
+                                                        minDate={(new Date().setDate(new Date().getDate()-7))}
                                                         onChange={handleChange} value={ingreso.fecha}
 
 
@@ -238,7 +269,9 @@ export default function (props) {
                                            rowsMax={3}> </TextField>
                             </Grid>}
                             <Grid item xs={12} sm={5}   style={{marginTop: '22px'}}>
-                                <Dropzone maxFiles={1} inputContent={"Arrastre las imagenes o haga click para explorar"}  accept={'image/*'} onChangeStatus={handleImages}  />
+                                {submitted?
+                                <Dropzone maxFiles={1} inputContent={"Arrastre las imagenes o haga click para explorar"} initialFiles={ingreso.fotoNeumatico}  accept={'image/*'}  onChangeStatus={handleImages} />
+                                :null}
                             </Grid>
                             <Grid item xs  >
                             <div>
@@ -248,12 +281,12 @@ export default function (props) {
                                 startIcon={<SaveIcon/>}
                                 variant="contained"
                                 color="primary"
-
+                                disabled={disable}
 
                             >
                                 Ingresar
                             </Button>
-                                <IconButton aria-label="delete" className={classes.margin} onClick={clearForm }>
+                                <IconButton aria-label="delete" className={classes.margin} disabled={disable} onClick={clearForm }>
                                     <DeleteIcon fontSize="large" color={'error'} />
                                 </IconButton>
                             </div>
@@ -264,6 +297,8 @@ export default function (props) {
                     </Grid>
                 </form>
             </Paper>
+            {<Confirmacion title={"Ingreso"} message={"¿Desea Ingresar el Neumático?"} fnFalse={()=>{}} fnTrue={submit} state={{openDialog,setOpenDialog}}/>}
+
         </main>
 
     </React.Fragment>

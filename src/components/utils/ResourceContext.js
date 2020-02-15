@@ -23,10 +23,12 @@ export default function ResourceProvider(props) {
     const [value,setValue] = React.useState({});
 
     useEffect(()=>{
+        value.addContext = (key,value) => setValue(prevState => ({...prevState,[key]:value}));
         getResources();
     },[]);
 
     const getResources = () =>{
+
 
         resources.obtenerTipoMinas().then(
             response =>{

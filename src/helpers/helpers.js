@@ -5,6 +5,10 @@ const renameProps = (obj, keysMap) => Object
         ...{ [keysMap[key] || key]: obj[key] }
     }), {});
 
+const justDate = date =>{
+    return date.getFullYear() + '-' + (date.getMonth()+1)+ '-' + date.getDate()
+};
 
-export {renameProps};
+
+export {renameProps,justDate};
 

@@ -10,30 +10,36 @@ import Autocomplete from "@material-ui/lab/Autocomplete/Autocomplete";
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import useYup from "@usereact/use-yup/lib";
+import {addDays} from 'date-fns';
 import {validationSchema} from "../../validators/InformacionNeumatico";
 import resources from "../../services/resources";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import * as recepcion from '../../services/recepcion';
 import {useSnackbar} from "notistack";
+import Confirmacion from "../utils/Confirmacion";
+import {action} from "../utils/ProcessNotification";
 
 
 
 
 export default function InformacionNeumatico(props) {
-    const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar,closeSnackbar} = useSnackbar();
     const [compuestoField,setCompuestoField] = React.useState(false);
-
+    const [openDialog,setOpenDialog] = React.useState(false);
     const [marcas,setMarcas] = React.useState([]);
     const [medidas,setMedidas] = React.useState([]);
     const [modelos,setModelos] = React.useState([]);
     const [compuestos, setCompuestos] = React.useState([]);
     const [causasRecepcion,setCausasRecepcion] = React.useState([]);
+    const [disable,setDisable] = React.useState(false);
+
 
     const  {ingresos,setIngresos} = props.ingresos;
 
-    console.log(props);
+    const {infoNeumatico} = props;
 
-    const loading = marcas.length ===0 || medidas.length ===0;
+
+
 
 
     React.useEffect(()=>{
@@ -42,22 +48,24 @@ export default function InformacionNeumatico(props) {
     },[]);
 
     const [neumatico, setNeumatico] = React.useState({
-        kmsOperacion: 0,
-        hrsOperacion: 0,
-        rtd: 0,
-        marca: '',
-        medida: '',
-        modelo: '',
-        compuesto:'',
+
+        kmsOperacion: infoNeumatico? infoNeumatico.kmsOperacion :0,
+        hrsOperacion: infoNeumatico? infoNeumatico.hrsOperacion :0,
+        rtd: infoNeumatico? infoNeumatico.rtd: 0,
+        marca: infoNeumatico? infoNeumatico.marca:'' ,
+        medida: infoNeumatico? infoNeumatico.medida:'',
+        modelo: infoNeumatico? infoNeumatico.modelo:'',
+        compuesto:infoNeumatico? infoNeumatico.compuesto:'',
         fecha: (new Date(Date.now())),
         ingresosid:props.ingreso[0],
-        neumaticosserie:props.ingreso[1]
+        neumaticosserie:props.ingreso[1],
+        numeroCatalogo:infoNeumatico? infoNeumatico.numeroCatalogo:0
     });
+
     const {errors,isValid} = useYup(neumatico, validationSchema, {validateOnChange: true});
 
     const handleChange = e => {
         if (e === null) return;
-        if (e.toString() === 'Invalid Date' ) return;
         if (e instanceof Date) {
             setNeumatico(prevState => ({
                 ...prevState,
@@ -85,33 +93,35 @@ export default function InformacionNeumatico(props) {
     };
 
     React.useEffect(()=>{
-        if (neumatico.marca !=='' )
+        if (neumatico.marca !=='' && !props.neumaticoEncontrado )
             resources.obtenerMedidasSegunMarca(neumatico.marca).then(res => setMedidas(res)).catch(()=> setMedidas([]));
 
     },[neumatico.marca]);
 
     React.useEffect(()=>{
-        if (neumatico.medida !=='')
+        if (neumatico.medida !=='' && !props.neumaticoEncontrado)
             resources.obtenerModelosSegunMarcaMedida(neumatico.marca,neumatico.medida).then(res => setModelos(res)).catch(()=>setModelos([]))
     },[neumatico.medida]);
 
     React.useEffect(()=>{
-       if (neumatico.modelo !== ''){
+       if (neumatico.modelo !== '' && !props.neumaticoEncontrado ){
            resources.obtenerNumeroCatalogo(neumatico.marca,neumatico.medida,neumatico.modelo).then((res=>{
+               debugger;
                if (res.length>1) {
                    setCompuestoField(true);
                    resources.obtenerCompuestos(neumatico.marca,neumatico.medida,neumatico.modelo).then(res=>setCompuestos(res))
 
                }else{
-                   setNeumatico({...neumatico,'numeroCatalogo':res[0].catalogueNumber})
+                   setCompuestoField(false);
+                   setNeumatico({...neumatico,'numeroCatalogo':res[0]? res[0].catalogueNumber:0})
                }
            }))
        }
     },[neumatico.modelo]);
 
     React.useEffect(()=>{
-        if (neumatico.compuesto !== '')
-            resources.obtenerNumeroCatalogo(neumatico.marca,neumatico.medida,neumatico.modelo,neumatico.compuesto).then(res => setNeumatico({...neumatico,'numeroCatalogo':res[0].catalogueNumber}) )
+        if (neumatico.compuesto !== '' && !props.neumaticoEncontrado)
+            resources.obtenerNumeroCatalogo(neumatico.marca,neumatico.medida,neumatico.modelo,neumatico.compuesto).then(res => setNeumatico({...neumatico,'numeroCatalogo':res[0]?res[0].catalogueNumber:0}) )
     },[neumatico.compuesto]);
 
     const handleSubmit = e =>{
@@ -121,6 +131,15 @@ export default function InformacionNeumatico(props) {
             enqueueSnackbar('Hay campos incompletos',{variant:"info"});
             return;
         }
+
+        setOpenDialog(true);
+
+
+    };
+
+    const submit = () =>{
+        setDisable(true);
+        const key = enqueueSnackbar('Procesando...',{variant:"info",persist:true,action:action});
         recepcion.ingresarRecepcion(neumatico)
             .then(res =>{
                 debugger;
@@ -132,29 +151,33 @@ export default function InformacionNeumatico(props) {
                 props.openModal(false);
                 setIngresos(update(ingresos,{$apply: elements => elements.filter( t=> t.id !== props.ingreso[0])}))
             })
-            .catch(err => enqueueSnackbar(err.message,{variant: "error"}))
-
+            .catch(err => enqueueSnackbar(err.response?err.response.data.error.message: err.message,{variant: "error"}))
+            .finally(() => {
+                setDisable(false);
+                closeSnackbar(key);
+            })
     };
 
-
+    console.log(neumatico);
 
     return (
         <React.Fragment>
             <form onSubmit={handleSubmit}>
             <Container component={'main'}>
                 <Typography variant="h6" gutterBottom>
-                    Recepción
+                    Recepción de: {props.ingreso[1]}
                 </Typography>
                 <Grid container justify={"flex-end"} direction={"row"} spacing={2}
                       style={{padding: '10px'}}>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
                         <Autocomplete id={'marca'} options={marcas} getOptionLabel={option => option.manufacturer} onChange={handleChangeAutoComplete('marca')}
+                                      disabled={props.neumaticoEncontrado} inputValue={neumatico.marca}
                                       renderInput={params => (<TextField {...params} label={"Marca"} style={{width:'200px'}} required
                                                                          InputProps={{
                                                                              ...params.InputProps,
                                                                              endAdornment: (
                                                                                  <React.Fragment>
-                                                                                     {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                                                     {marcas.length===0 ? <CircularProgress color="inherit" size={20} /> : null}
                                                                                      {params.InputProps.endAdornment}
                                                                                  </React.Fragment>
                                                                              ),
@@ -162,30 +185,55 @@ export default function InformacionNeumatico(props) {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
                         <Autocomplete id={'medida'} options={medidas} getOptionLabel={option => option.size} onChange={handleChangeAutoComplete('medida')}
-                                      renderInput={params => (<TextField {...params} label={"Medida"} style={{width:'200px'}} required   InputProps={{
+                                      inputValue={neumatico.medida }
+                                      disabled={props.neumaticoEncontrado}
+                                      renderInput={params => (<TextField {...params} label={"Medida"} style={{width:'200px'}} required  InputProps={{
                                           ...params.InputProps,
                                           endAdornment: (
                                               <React.Fragment>
-                                                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                  {medidas.length===0 ? <CircularProgress color="inherit" size={20} /> : null}
                                                   {params.InputProps.endAdornment}
                                               </React.Fragment>
                                           ),
                                       }}/>)}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
-                        <Autocomplete id={'modelo'} options={modelos} getOptionLabel={option => option.patternTreadDesign} onChange={handleChangeAutoComplete('modelo')}
-                                      renderInput={params => (<TextField {...params} label={"Modelo"} style={{width:'200px'}} required />)}/>
+                        <Autocomplete id={'modelo'}  options={modelos} getOptionLabel={option => option.patternTreadDesign} onChange={handleChangeAutoComplete('modelo')}
+                                      inputValue={neumatico.modelo}
+                                      disabled={props.neumaticoEncontrado}
+                                      renderInput={params => (<TextField {...params} label={"Modelo"} style={{width:'200px'}}  required InputProps={{
+                                          ...params.InputProps,
+                                          endAdornment: (
+                                              <React.Fragment>
+                                                  {modelos.length===0 ? <CircularProgress color="inherit" size={20} /> : null}
+                                                  {params.InputProps.endAdornment}
+                                              </React.Fragment>
+                                          ),
+                                      }} />)}/>
                     </Grid>
                     {compuestoField?
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
                         <Autocomplete id={'compuesto'} options={compuestos} getOptionLabel={option => option.compound} onChange={handleChangeAutoComplete('compuesto')}
-                                      renderInput={params => (<TextField {...params} label={"Compuesto"} required style={{width:'200px',transform:'traslateY(17px)'}} />)}/>
+
+                                      disabled={props.neumaticoEncontrado}
+                                      renderInput={params => (<TextField {...params} label={"Compuesto"} required style={{width:'200px',transform:'traslateY(17px)'}}
+                                                                         InputProps={{
+                                                                             ...params.InputProps,
+                                                                             endAdornment: (
+                                                                                 <React.Fragment>
+                                                                                     {compuestos.length===0 ? <CircularProgress color="inherit" size={20} /> : null}
+                                                                                     {params.InputProps.endAdornment}
+                                                                                 </React.Fragment>
+                                                                             ),
+                                                                         }}
+                                      />)}/>
                     </Grid>:null
                     }
 
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3}>
                         <TextField id={"rtd"} label={"RTD"}  margin={"normal"}
                                    type={"number"}
+                                   disabled={props.neumaticoEncontrado}
                                    error={Boolean(errors.rtd)} helperText={errors.rtd ? errors.rtd : ""}
                                    onChange={handleChange} value={neumatico.rtd}/>
                     </Grid>
@@ -195,10 +243,12 @@ export default function InformacionNeumatico(props) {
                                    type={"number"}
                                    error={Boolean(errors.hrsOperacion)}
                                    helperText={errors.hrsOperacion ? errors.hrsOperacion : ""}
+                                   disabled={props.neumaticoEncontrado}
                                    onChange={handleChange} value={neumatico.hrsOperacion}/>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3} lg={4} xl={3} >
                         <Autocomplete id={'causaRecepcion'} style={{paddingTop:'15px'}} options={causasRecepcion} getOptionLabel={option => option.nombre} onChange={handleChangeAutoComplete('causaRecepcionid')}
+
                                       renderInput={params => (<TextField {...params} label={"Causa de Recepcion"} required
                                                                          style={{width:'200px'}} />)}/>
                     </Grid>
@@ -206,6 +256,7 @@ export default function InformacionNeumatico(props) {
                         <TextField id={"kmsOperacion"} label={"Kms de Operación"}
                                    margin={"normal"}
                                    type={"number"}
+                                   disabled={props.neumaticoEncontrado}
                                    error={Boolean(errors.kmsOperacion)}
                                    helperText={errors.kmsOperacion ? errors.kmsOperacion : ""}
                                    onChange={handleChange} value={neumatico.kmsOperacion}/>
@@ -216,7 +267,7 @@ export default function InformacionNeumatico(props) {
                         <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <KeyboardDatePicker id={"fecha"} label={"Fecha de Recepción"} format={"dd/MM/yyyy"}
                                                 KeyboardButtonProps={{'aria-label': 'change-date'}} showTodayButton
-                                                onChange = {handleChange} value = {neumatico.fechaRecepcion}
+                                                onChange = {handleChange} value = {neumatico.fecha} minDate ={addDays(new Date(props.ingreso[6]),1)}
                                                 />
                         </MuiPickersUtilsProvider>
 
@@ -233,11 +284,14 @@ export default function InformacionNeumatico(props) {
                 startIcon={<SaveIcon/>}
                 variant="contained"
                 color="primary"
+                disabled={disable}
                 style={{backgroundColor: '#f47b20'}}
             >Guardar </Button>
 
             </DialogActions>
             </form>
+            {<Confirmacion title={"Recepción"} message={"¿Desea Recepcionar el Neumático?"} fnFalse={()=>{}} fnTrue={submit} state={{openDialog,setOpenDialog}}/>}
+
         </React.Fragment>
     );
 }

@@ -16,6 +16,8 @@ import '../styles/Cliente.css';
 import {ResourceContext} from "./utils/ResourceContext";
 import * as serviceCliente from "../services/cliente";
 import {useSnackbar} from "notistack";
+import {action} from "./utils/ProcessNotification";
+import {format, validate} from "rut.js";
 
 const initialStateCliente = {
   nombreFaena:'',
@@ -24,7 +26,8 @@ const initialStateCliente = {
   longitud:0,
   tipoMina:null,
   region:null,
-  tieneContrato:false
+  tieneContrato:false,
+  rut:''
 };
 
 export default function Cliente (props) {
@@ -33,7 +36,8 @@ export default function Cliente (props) {
 
     let [cliente, setCliente] = React.useState(initialStateCliente);
 
-    const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar,closeSnackbar} = useSnackbar();
+    const [disable,setDisable] = React.useState(false);
 
     const clearForm = () =>{
         initialStateCliente.region = cliente.region;
@@ -43,6 +47,14 @@ export default function Cliente (props) {
 
     const handleSubmit = event =>{
       event.preventDefault();
+      if (!validate(cliente.rut)){
+          enqueueSnackbar('RUT no valido',{variant:"warning"});
+          return;
+      }
+
+      setDisable(true);
+      const key = enqueueSnackbar('Procesando...',{variant:"info",persist:true,action:action});
+
       serviceCliente.crearCliente(cliente).then(res =>{
           if (res) {
               enqueueSnackbar('Se ha Ingresado el Cliente',{variant:"success"});
@@ -51,7 +63,11 @@ export default function Cliente (props) {
 
       }).catch(
             err=> enqueueSnackbar(err.message,{variant:"error"}
-          ));
+          ))
+          .finally(() => {
+              setDisable(false);
+              closeSnackbar(key);
+          })
     };
     const handleChangeAutoComplete = id => (e,value) =>{
         console.log(e,value);
@@ -68,7 +84,7 @@ export default function Cliente (props) {
         let value = e.target.value || (e.target.value ==='' && e.target.checked ===false)?e.target.value:e.target.checked;
         setCliente(prevState => ({
             ...prevState,
-            [id]:value
+            [id]:id === 'rut'? format(value):value
         }));
 
         console.log(cliente);
@@ -90,9 +106,20 @@ export default function Cliente (props) {
                                 variant="outlined"
                                 required
                                 fullWidth
+                                id="rut"
+                                label="RUT"
+                                autoFocus
+                                value={cliente.rut}
+                                onChange={handleChanges}
+                            />
+                        </Grid>
+                        <Grid item xs={12} >
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
                                 id="nombreFaena"
                                 label="Nombre"
-                                autoFocus
                                 value={cliente.nombreFaena}
                                 onChange={handleChanges}
                             />
@@ -142,7 +169,7 @@ export default function Cliente (props) {
                                           renderInput={params => (<TextField id={"region"} {...params} label={"Region"} variant={'outlined'} fullWidth />)}/>
                         </Grid>
                         <Grid item xs={12}>
-                            <FormControlLabel name={"tieneContrato"} onChange={handleChanges}
+                            <FormControlLabel name={"tieneContrato"} onChange={handleChanges} defaultValue={false}
                                 control={<Checkbox  color="primary" checked={cliente.tieneContrato}
                                 />}
                                 label="Contrato"
@@ -155,6 +182,7 @@ export default function Cliente (props) {
                         color="primary"
                         style={{ backgroundColor:'#f47b20'}}
                         startIcon={<SaveIcon/>}
+                        disabled={disable}
                     >
                         Guardar
                     </Button>

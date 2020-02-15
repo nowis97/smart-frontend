@@ -13,13 +13,17 @@ import {useSnackbar} from "notistack";
 import auth from '../services/auth';
 import {useHistory,useLocation} from "react-router-dom";
 import Copyright from "./MainContainer/Copyright";
+import {action} from "./utils/ProcessNotification";
+import {ResourceContext} from "./utils/ResourceContext";
 
 
 export default function Login(props) {
     const classes = useStyles();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const history = useHistory();
-    const location = useLocation();
+    const [disable,setDisable] = React.useState(false);
+    const {addContext} = React.useContext(ResourceContext);
+
 
 
     const [login,setLogin] =React.useState({
@@ -37,18 +41,25 @@ export default function Login(props) {
 
     const signup = async (e) =>{
         e.preventDefault();
-        const result = await auth.login(login.userId,login.password);
-        console.log(result);
-        if('token' in result){
-            history.push({pathname:'/',state:{result}});
-            return true
-        }else if(result.toLocaleString().includes('Network Error')){
-            enqueueSnackbar('Error en el Servidor:'+ result,{variant:'error'});
+        setDisable(true);
+        const key = enqueueSnackbar('Ingresando...',{persist:true,action:action,variant:"info"});
+        auth.login(login.userId,login.password).then( async res =>{
 
-        }else{
-            enqueueSnackbar('Credenciales Incorrectas: '+result,{variant:'error'});
-        }
-        return false;
+            const result = res.data;
+            addContext('currentRoles',result.roles);
+            const roles = await auth.obtenerRoles();
+
+            if('token' in result)
+                history.push({pathname:'/',state:{result,roles}});
+        })
+        .catch(err => {
+            enqueueSnackbar(err.response ? err.response.data.error.message : err.message,{variant:'error'})
+        })
+        .finally(() => {
+                setDisable(false);
+                closeSnackbar(key);
+            })
+
     };
     return (
         <Container component="main" maxWidth="xs">
@@ -90,6 +101,7 @@ export default function Login(props) {
                         fullWidth
                         variant="contained"
                         color="primary"
+                        disabled={disable}
                         className={classes.submit}
 
                     >
@@ -97,9 +109,9 @@ export default function Login(props) {
                     </Button>
                     <Grid container>
                         <Grid item xs>
-                            <Link href="#" variant="body2">
+                            {/*<Link href="#" variant="body2">
                                 ¿Olvido la contraseña?
-                            </Link>
+                            </Link>*/}
                         </Grid>
                         <Grid item>
 

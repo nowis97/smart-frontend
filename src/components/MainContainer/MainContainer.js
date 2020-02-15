@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import clsx from 'clsx';
+import _ from 'lodash';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
@@ -10,48 +11,56 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import smart_logo from './../../assets/smart_logo.png';
-import Link from '@material-ui/core/Link';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ListItems from "./ListItems";
 import Dashboard from "../Dashboard";
 import Recepcion from "../RecepcionForm/Recepcion";
-import {Route, Switch} from 'react-router-dom'
+import {Switch} from 'react-router-dom'
 import Ingreso from "../IngresoForm/Ingreso";
-import {useLocation,useRouteMatch,withRouter,useHistory} from 'react-router-dom';
+import {useLocation,useHistory} from 'react-router-dom';
 import Cookie from 'js-cookie';
-import Planta from "../PlantaForm/Planta";
 import useStyles from "../../styles/MainContainer";
 import Copyright from "./Copyright";
 import Cliente from "../Cliente";
 import Recepcionado from "../PlantaForm/Recepcionado";
-
+import Despacho from "../DespachoForm/Despacho";
+import Facturacion from "../FacturacionForm/Facturacion";
+import Reporte from "../ReporteForm/Reporte";
+import Performance from "../PerformanceForm/Performance";
+import Importar from "../ImportarForm/Importar";
+import Badge from "@material-ui/core/Badge";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import auth from "../../services/auth";
+import Popover from "@material-ui/core/Popover";
+import {Administrator} from "../Administrator/Administrator";
+import {PrivateRoute} from "../utils/PrivateRoute";
+import {ResourceContext} from "../utils/ResourceContext";
 
 
 
 function MainContainer(props) {
     const history = useHistory();
-    const location = useLocation();
-    console.log(location);
+    const {roles} = React.useContext(ResourceContext);
+
+
     useEffect(() =>{
         if (window.innerWidth<=760) handleDrawerClose();
         setUser(Cookie.get('username'));
-
     },[]);
 
 
-
     const [user,setUser] =  React.useState('');
+    const [anchorEl, setAnchorEl] = React.useState(null);
 
     const classes = useStyles();
     const [open, setOpen] = React.useState(true);
     const [title, setTitle] = React.useState('SMART');
 
-    console.log(location.state);
 
-    const changeTitle = React.useCallback((title) => {
-        setTitle(title);
-    },[title]);
+
+
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -59,6 +68,22 @@ function MainContainer(props) {
         setOpen(false);
     };
 
+    const logout = () =>{
+        auth.logout();
+        history.push('/login');
+    };
+
+    const handlePopoverOpen = event => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
+
+    const openPop = Boolean(anchorEl);
+
+    console.log(props);
 
     return (
         <>
@@ -82,11 +107,39 @@ function MainContainer(props) {
                     <Typography variant={"subtitle2"} gutterBottom color={"inherit"} noWrap className={classes.subTitle}>
                         {user?user.toUpperCase():""}
                     </Typography>
-                    {/*<IconButton color="inherit">
-                        <Badge badgeContent={4} color="secondary">
-                            <NotificationsIcon />
-                        </Badge>
-                    </IconButton>*/}
+                    { <IconButton color="inherit" edge={"end"} style={{transform:'translateX(10px)'}}
+                                  onClick={ () => history.push('/admin')} >
+                        <SupervisorAccountIcon />
+                    </IconButton>}
+
+                     <IconButton color="inherit" edge={"end"} style={{transform:'translateX(10px)'}}
+                                 onMouseEnter={handlePopoverOpen}
+                                 onMouseLeave={handlePopoverClose}
+                                     onClick={logout} >
+                            <ExitToAppIcon />
+                    </IconButton>
+                    <Popover
+                        id="mouse-over-popover"
+                        className={classes.popover}
+                        classes={{
+                            paper: classes.paper,
+                        }}
+                        open={openPop}
+                        anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        onClose={handlePopoverClose}
+                        disableRestoreFocus
+                    >
+                        <Typography variant={"body2"}>Cerrar Sesión</Typography>
+                    </Popover>
+
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -106,18 +159,23 @@ function MainContainer(props) {
                 </div>
                 <Divider />
                 <List>
-                    <ListItems changeTitle={changeTitle} />
+                    <ListItems changeTitle={setTitle} />
                 </List>
                 <Divider />
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.appBarSpacer} />
                     <Switch>
-                        <Route  path = "/dashboard" component={Dashboard} />
-                        <Route   path = "/ingreso" component = {Ingreso}/>
-                        <Route   path = "/recepcion" component = {Recepcion} />
-                        <Route path="/planta" component = {Recepcionado}/>
-                        <Route path={"/cliente"} component={Cliente}/>
+                        <PrivateRoute path = "/dashboard" roles ={["dashboard","superuser"]} component={Dashboard} />
+                        <PrivateRoute path = "/ingreso" roles ={["ingreso","superuser"]} component = {Ingreso}/>
+                        <PrivateRoute path = "/recepcion" roles={["recepcion","superuser"]} component = {Recepcion} />
+                        <PrivateRoute path= "/planta" roles={["planta","superuser"]} component = {Recepcionado}/>
+                        <PrivateRoute path= "/despacho" roles={["despacho","superuser"]} component={Despacho}/>
+                        <PrivateRoute path= "/cliente" roles={["superuser"]} component={Cliente}/>
+                        <PrivateRoute path= "/facturacion" roles={["facturacion","superuser"]} component={Facturacion}/>
+                        <PrivateRoute path= "/reportes" roles={["reportes","superuser"]} component={Reporte}/>
+                        <PrivateRoute path="/performance" roles={["performance","superuser"]} component={Performance}/>
+                        <PrivateRoute path="/importar" roles={["importar","superuser"]} component={Importar}/>
                     </Switch>
 
 

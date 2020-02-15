@@ -4,7 +4,10 @@ import * as helpers from '../helpers/helpers'
 
 const URI = process.env.REACT_APP_API_URL;
 
-const headerJson = {'Content-Type':'application/json'};
+const headerJson = {
+    'Content-Type':'application/json',
+    'Authorization':'Bearer '+Cookie.get('token')
+};
 
 const headerMultipart = {'Content-Type':'multipart/form-data'};
 
@@ -15,9 +18,11 @@ function uploadImage(files,name) {
     const file = files[0];
     debugger;
     if (files.length===0) return {filename:''};
-    formData.append('image',file,name +'.'+ file.name.split('.').pop());
+    formData.append('file',file,name +'.'+ file.name.split('.').pop());
 
-    return axios.post(URI+'upload-image',formData,headerMultipart).then(
+    return axios.post(URI+'upload-image',formData,{
+        headers:{...headerMultipart,['Authorization']:'Bearer '+Cookie.get('token')
+        }}).then(
         res => res.data
     ).catch(
         err => err
@@ -34,6 +39,7 @@ const ingresarNeumatico = async ingreso =>{
     ingreso.fotoNeumatico = resp.filename;
     ingreso.guiaKaltire = Number(ingreso.guiaKaltire);
     ingreso.fecha = new Date(ingreso.fecha);
+    ingreso.serie = ingreso.serie.toUpperCase();
 
     delete ingreso.reSerie;
    ingreso = helpers.renameProps(ingreso,{
@@ -43,10 +49,8 @@ const ingresarNeumatico = async ingreso =>{
         'cliente':'clientesid',
         'guiaKaltire':'guiaKt'
     });
-   return await axios
+   return axios
         .post(URI+'ingresos',ingreso,headerJson)
-       .then(resp => resp.data)
-       .catch(err=> err)
 
 };
 

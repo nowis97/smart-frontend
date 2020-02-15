@@ -14,19 +14,37 @@ import {useSnackbar} from "notistack";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import Checkbox from "@material-ui/core/Checkbox";
+import LoadingComponent from "../utils/LoadingComponent";
+import {ingresarRecepcion, neumaticoEnToms, default as recepcion} from "../../services/recepcion";
+import {format} from "date-fns";
+import {action} from "../utils/ProcessNotification";
 
 const URI = process.env.REACT_APP_API_URL;
 
+const initialStateInfoNeumatico = {
+    kmsOperacion: 0,
+    hrsOperacion: 0,
+    rtd: 0,
+    marca: '',
+    medida: '',
+    modelo: '',
+    compuesto:''
+};
 
 export default function Recepcion(props) {
-    const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar,closeSnackbar} = useSnackbar();
 
     const [ingresos,setIngresos] = React.useState([]);
     const [openImage,setOpenImage] = React.useState(false);
     const [pathImage,setPathImage] = React.useState('');
+    const [isLoading,setIsLoading] = React.useState(true);
+    const [infoNeumatico,setInfoNeumatico] = React.useState({});
+    const [neumaticoEncontrado,setNeumaticoEncontrado] = React.useState(false);
+
     useEffect(()=>{
         obtenerNeumaticos()
             .then(resp=> {
+                setIsLoading(false);
                 setIngresos(resp.data);})
             .catch(err => enqueueSnackbar(err.message,{variant:"error"}) )
     },[]);
@@ -42,12 +60,51 @@ export default function Recepcion(props) {
         setOpen(false);
     };
 
+    const isInToms = data =>{
+        const key = enqueueSnackbar('Procesando...', {variant: "info", persist: true, action: action});
+
+        neumaticoEnToms(data[1]).then(res => {
+            if (res.data.length === 0)
+                throw new Error('Neumatico no encontrado en TOMS');
+
+            const tire = res.data[0];
+            setNeumaticoEncontrado(true);
+
+            initialStateInfoNeumatico.hrsOperacion = tire.hours;
+            initialStateInfoNeumatico.kmsOperacion = tire.distance;
+            initialStateInfoNeumatico.marca = tire.manufactureCode;
+            initialStateInfoNeumatico.medida = tire.size;
+            initialStateInfoNeumatico.rtd = tire.rtdAverage;
+            initialStateInfoNeumatico.modelo = tire.pattern;
+            initialStateInfoNeumatico.compuesto = tire.compound;
+            initialStateInfoNeumatico.numeroCatalogo = tire.nCatalogue;
+
+            setInfoNeumatico(initialStateInfoNeumatico);
+
+        })
+            .catch(err =>{
+                enqueueSnackbar(err.response? err.response.data.error.message:err.message,{variant:"error"});
+                setNeumaticoEncontrado(false);
+                setInfoNeumatico(undefined);
+            }).finally(()=>{
+            closeSnackbar(key);
+            setIngreso(data);
+            handleOpen();
+        })
+
+
+
+
+
+
+
+    };
 
 
     const options = {
         filter: true,
-        onRowClick: data => {handleOpen(); console.log(data); setIngreso(data)},
-        searchOpen:true,
+        onRowClick: isInToms,
+        searchOpen:false,
         responsive: 'scrollMaxHeight',
         fixedHeaderOptions: {
             xAxis: false,
@@ -97,7 +154,7 @@ export default function Recepcion(props) {
         options:{
             empty: true,
             customBodyRender: (value, tableMeta, KQOOSIupdateValue) => {
-                return (new Date(Date.parse(value))).toLocaleDateString();
+                return format(Date.parse(value),'yyyy-MM-dd');
             }
         }
     }, {
@@ -136,6 +193,7 @@ export default function Recepcion(props) {
             <CssBaseline/>
             <main className={classes.layout} style={{margin: '15px'}}>
                 <Paper className={classes.paper}>
+                    {isLoading && <LoadingComponent/>}
                     <Typography component="h1" variant="h5" align="center" style={{paddingTop: '15px'}}>
                         Recepción de Neumaticos
                     </Typography>
@@ -145,7 +203,7 @@ export default function Recepcion(props) {
                         border: 0,
                         borderTop: '1px solid rgba(0,0,0,0.1)'
                     }}/>
-                    <MUIDataTable data={ingresos} columns={columns}  options={options} />
+                    <MUIDataTable data={ingresos} columns={columns}  options={options} title = {"Neumáticos Ingresados"} />
                     <hr style={{
                         marginTop: '1rem',
                         marginBottom: '1rem',
@@ -160,7 +218,8 @@ export default function Recepcion(props) {
             {openImage? <Lightbox mainSrc={URI +'images/'+ pathImage} onCloseRequest={() => setOpenImage(false)}/>:null}
 
             <Modal onClose={handleClose} open={open} center focusTrapped={false}>
-                <InformacionNeumatico ingresos = {{ingresos,setIngresos}} openModal = {setOpen}  ingreso = {ingreso} />
+                <InformacionNeumatico ingresos = {{ingresos,setIngresos}} openModal = {setOpen}
+                                      ingreso = {ingreso} infoNeumatico = {infoNeumatico} neumaticoEncontrado = {neumaticoEncontrado} />
 
             </Modal>
 

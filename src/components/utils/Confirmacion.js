@@ -28,8 +28,9 @@ export default function AlertDialogSlide(props) {
 
 
     const handleAceptar = () =>{
-        close();
+
         fnTrue();
+        close();
 
     };
 

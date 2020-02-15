@@ -22,7 +22,7 @@ export default function () {
 
 
 
-    const handleChange = (value,event) => {
+    const handleChange = value => (event) => {
         let e = event.target;
         dispatch({type:'HANDLE_FORM_STATUS',payload:{value,e}})
     };

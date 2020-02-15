@@ -3,7 +3,8 @@ import Cookie from 'js-cookie';
 const URI = process.env.REACT_APP_API_URL;
 
 const header = {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Authorization": 'Bearer '+Cookie.get('token')
 };
 
 function login(username, password) {
@@ -11,9 +12,7 @@ function login(username, password) {
      return  axios.post(URI + 'users/login', {'username': username, 'password': password},header).then((resp)=>{
         Cookie.set('token',resp.data.token,{expires:8/48});
         Cookie.set('username',resp.data.id,{expires: 8/48});
-        return resp.data;
-    }).catch((err)=>{
-        return err;
+        return resp;
     });
 
 
@@ -30,4 +29,8 @@ function logout() {
     Cookie.remove('username');
 }
 
-export default {login,logout,isAuthenticated};
+
+
+const obtenerRoles = async () => (await axios.get(URI + 'roles',{headers:header})).data;
+
+export default {login,logout,isAuthenticated,obtenerRoles};

@@ -95,6 +95,9 @@ const useStyles = makeStyles(theme => ({
         overflow: 'auto',
         height: '45px',
         width: '280px'
+    },
+    popover:{
+        pointerEvents:'none'
     }
 }));
 export default useStyles;

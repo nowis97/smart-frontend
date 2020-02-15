@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
-import React from "react";
+import React, {useEffect} from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
@@ -11,12 +11,15 @@ import '../../styles/Planta.css'
 import {InformacionPlanta} from "./InformacionPlanta";
 import Procesos from "./Procesos";
 import plantaReducer from "../../reducers/PlantaReducer";
-import Revision from "./Revision";
 import Confirmacion from "../utils/Confirmacion";
 import SaveIcon from '@material-ui/icons/Save';
 import useStyle from "../../styles/Planta";
 import DialogActions from "@material-ui/core/DialogActions";
 import Container from "@material-ui/core/Container";
+import * as planta from '../../services/planta';
+import {useSnackbar} from "notistack";
+import update from "immutability-helper";
+import {action} from "../utils/ProcessNotification";
 
 
 const initialStateForms = {
@@ -32,8 +35,9 @@ const initialStatePlanta={
     planta:'',
     mesProduccion:(new Date(Date.now())) ,
     ordenTrabajo: '',
-    codigoBaja:'',
-    condicionFinal:''
+   // codigoBaja:'',
+    condicionFinal:'',
+    serie:''
 
 };
 const initialStateReparaciones = {
@@ -62,14 +66,18 @@ const initialStateReparaciones = {
 };
 
 const initialStateRenovados = {
-    tipoRenovado:'',
+    tipoRenovado:'smoothgroove',
     codigoCauchoBase:'',
-    cauchoUtilizado:'',
-    otdRenovado:'',
-    pesoCarcasa:'',
+    cauchoUtilizado:0,
+    otdRenovado:0,
+    pesoCarcasa:0,
     cauchoBanda1:'',
     cauchoBanda2:''
 
+};
+
+const initialStateValidations = {
+    isValid:false
 };
 
 export const PlantaContext = React.createContext({});
@@ -77,27 +85,35 @@ export const PlantaContext = React.createContext({});
 
 const steps = ['Información Planta', 'Procesos'];
 
-const getStepContent =  (step) => {
-    switch (step) {
-        case 0:
-            return <InformacionPlanta/>;
-        case 1:
-            return  <Procesos/>;
-        case 2:
-            return <Revision/>;
-    }
-};
 
 
 export default function Planta(props) {
-    const [state,dispatch] =React.useReducer(plantaReducer,{initialStatePlanta,initialStateReparaciones,initialStateRenovados,initialStateForms});
+    const [state,dispatch] =React.useReducer(plantaReducer,{initialStatePlanta,initialStateReparaciones,initialStateRenovados,initialStateForms,initialStateValidations});
     const classes = useStyle();
+    const {enqueueSnackbar,closeSnackbar} = useSnackbar();
     const [activeStep, setActiveStep ] = React.useState(0);
-
+    const {recepcionados,setRecepcionados} = props.recepcionadosData;
     const [openDialog,setOpenDialog] = React.useState(false);
+    const {isValid} = state.initialStateValidations;
+    const [disable,setDisable] = React.useState(false);
+
+    const getStepContent =  (step) => {
+        switch (step) {
+            case 0:
+                return <InformacionPlanta fechaRecepcionado = {props.recepcionadoFecha}/>;
+            case 1:
+                return  <Procesos/>;
+            default:
+                return null;
+        }
+    };
+
 
     const handleNext = () => {
-
+        if (!isValid) {
+            enqueueSnackbar('Campos no validos',{variant:"warning"});
+            return;
+        }
         setActiveStep(activeStep+1);
 
 
@@ -107,11 +123,42 @@ export default function Planta(props) {
     };
 
     const handleGuardar = () =>{
+        if (!isValid) {
+            enqueueSnackbar('Campos no validos',{variant:"warning"});
+            return;
+        }
         setOpenDialog(true);
     };
 
+    const submit = () =>{
+        setDisable(true);
+        const key = enqueueSnackbar('Procesando...',{persist:true, action:action,variant:"info"});
+        props.openModal(false);
+        state.initialStatePlanta.recepcionesid = props.idRecepcion;
+        state.initialStatePlanta.serie = props.serie;
+        planta.ingresarPlanta(state)
+            .then(res=>{
+                enqueueSnackbar('Guardado Correctamente',{variant:'success'});
+                setRecepcionados(update(recepcionados,{
+                    $apply: rec => rec.filter( el => el.id !== String(props.idRecepcion))
+                }))
+
+            })
+            .catch(err=>enqueueSnackbar(err.response?err.response.data.error.message:err.message,{variant:'error'}))
+            .finally(() => {
+                setDisable(false);
+                closeSnackbar(key);
+            })
+
+    };
+
     const handleSubmit = (e) =>{
+
         e.preventDefault();
+        if (activeStep===1 || state.initialStatePlanta.condicionFinal>=3){
+            handleGuardar();
+            return;
+        }
         handleNext();
 
     };
@@ -122,8 +169,9 @@ export default function Planta(props) {
             <CssBaseline />
             <PlantaContext.Provider value ={{state,dispatch}}>
                 <Container component={'main'}>
+
                         <Typography variant="h6" gutterBottom >
-                            Planta
+                            Planta {props.serie}
                         </Typography>
                         <hr style={{marginTop:'1rem',marginBottom:'1rem',border:0,borderTop: '1px solid rgba(0,0,0,0.1)'}}/>
                         <Stepper activeStep={activeStep} className={classes.stepper} alternativeLabel orientation={"horizontal"} style={{padding:'5px', marginTop:'20px'}} >
@@ -152,18 +200,18 @@ export default function Planta(props) {
                                     {getStepContent(activeStep)}
                                     <DialogActions>
                                         {activeStep !== 0 && (
-                                            <Button onClick={handleBack}  className={classes.button} style={{marginBottom:'15px'}}
+                                            <Button onClick={handleBack}  className={classes.button}
                                             >
                                                 Atrás
                                             </Button>
                                         )}
-                                        {activeStep!==steps.length-1?
+                                        {activeStep!==steps.length-1 && !(state.initialStatePlanta.condicionFinal >= 3)?
                                             <Button
                                                 variant="contained"
                                                 color="primary"
                                                 type={"submit"}
                                                 className={classes.button}
-                                                style={{marginBottom: '15px', backgroundColor: '#f47b20'}}
+                                                style={{backgroundColor: '#f47b20'}}
 
                                             >
                                                 Siguiente
@@ -173,10 +221,11 @@ export default function Planta(props) {
                                             <Button
                                             variant="contained"
                                             color="primary"
-                                            onClick={handleGuardar}
+                                            type={"submit"}
                                             className={classes.button}
-                                            style={{marginBottom:'15px', backgroundColor:'#f47b20'}}
+                                            style={{ backgroundColor:'#f47b20'}}
                                             startIcon={<SaveIcon/>}
+                                            disabled={disable}
                                             >
                                             Guardar
                                             </Button>
@@ -191,7 +240,7 @@ export default function Planta(props) {
 
             </PlantaContext.Provider>
             {/*openDialog? <Confirmacion title = "Planta" message ="¿Desea guardar?" fnFalse = {() =>{}} />:null*/}
-            <Confirmacion state = {{openDialog,setOpenDialog}} title = "Planta" message ="¿Desea guardar?" fnFalse = {() =>{}} />
+            <Confirmacion state = {{openDialog,setOpenDialog}} title = "Planta" message ="¿Desea guardar?" fnFalse = {() =>{}} fnTrue ={submit} />
         </React.Fragment>
     );
 }

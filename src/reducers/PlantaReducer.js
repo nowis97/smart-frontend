@@ -82,15 +82,23 @@ const plantaReducer = (state, action)=>{
         case 'HANDLE_FORM_STATUS':
             id = action.payload.value;
             value = action.payload.e.checked;
-            debugger;
-            if (id ==='reparacion') state = update(state,{initialStateForms:{ 'renovado':{$set:!value}}});
-            else state = update(state,{initialStateForms:{'reparacion':{$set:!value}}});
+            if (id ==='reparacion'){
+                state = update(state,{initialStateForms:{ 'renovado':{$set:!value}}});
+                return update(state,{
+                    initialStateForms: {[id]:{$set:value}}
+                });
+            } else if (id==='renovado'){
+                state = update(state,{initialStateForms:{'reparacion':{$set:!value}}});
+
+            }
 
             return update(state,{
                 initialStateForms: {[id]:{$set:value}}
             });
 
-
+        case 'HANDLE_VALIDATOR':
+            return update(state,{initialStateValidations: {$set:action.payload}
+            });
         default:
             return state;
     }

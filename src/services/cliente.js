@@ -1,10 +1,13 @@
 import axios from  'axios';
 import Cookie from 'js-cookie';
 import * as helpers from '../helpers/helpers';
-import * as querystring from 'querystring';
 const URI = process.env.REACT_APP_API_URL;
 
 const token = Cookie.get('token');
+const header = {
+    'Content-Type':'application/json',
+    'Authorization':'Bearer '+token
+};
 
 const obtenerClientes =async () => {
 
@@ -16,14 +19,12 @@ const obtenerClientes =async () => {
                     faena:true
                 }
             }
-        }
+        },
+        headers:header
     })).data
 };
 
 const crearCliente =async (cliente) =>{
-   const headers = {
-        'Content-Type':'application/json'
-   };
 
     cliente.longitud = parseFloat(cliente.longitud);
     cliente.latitud = parseFloat(cliente.latitud);
@@ -33,7 +34,9 @@ const crearCliente =async (cliente) =>{
         'region':'regionesid',
         'tipoMina':'tipoMinasid'
     });
-   return (await axios.post(URI + 'clientes', cliente, headers)).data
+   return (await axios.post(URI + 'clientes', cliente, {
+       headers:header
+   })).data
  };
 
 

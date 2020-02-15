@@ -6,6 +6,8 @@ import Login from "./components/Login";
 import {SnackbarProvider} from "notistack";
 import auth from "./services/auth";
 import ResourceProvider from "./components/utils/ResourceContext";
+import {Administrator} from "./components/Administrator/Administrator";
+import {PrivateRoute} from "./components/utils/PrivateRoute";
 function App() {
 
   return (
@@ -13,17 +15,17 @@ function App() {
 
     <div className="App">
       <SnackbarProvider maxSnack={3} anchorOrigin={{vertical:'top',horizontal:'center'}}>
-        <Switch>
+          <ResourceProvider>
+          <Switch>
           <Route path = "/login" component = {Login}/>
-          <Route
+          <PrivateRoute path={"/admin"} roles={["superuser"]} component ={Administrator}/>
+            <Route
               path="/"
               render={props =>
                   auth.isAuthenticated()? (
-                      <ResourceProvider>
                       <MainContainer
                           {...props}
                       />
-                      </ResourceProvider>
                   ) : (
                       <Redirect
                           to={
@@ -37,7 +39,9 @@ function App() {
               }
           />
         </Switch>
-              </SnackbarProvider>
+        </ResourceProvider>
+
+      </SnackbarProvider>
     </div>
       </BrowserRouter>
   );
