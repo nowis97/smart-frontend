@@ -10,7 +10,7 @@ export const PrivateRoute = ({ component: Component, roles, ...rest }) => {
     const {enqueueSnackbar} = useSnackbar();
 
     return <Route {...rest} render={props => {
-        debugger;
+
 
         if (!auth.isAuthenticated())
             // not logged in so redirect to login page with the return url

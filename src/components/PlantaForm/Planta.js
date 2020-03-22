@@ -33,9 +33,9 @@ const initialStateForms = {
 
 const initialStatePlanta={
     planta:'',
-    mesProduccion:(new Date(Date.now())) ,
+    mesProduccion: null ,
     ordenTrabajo: '',
-   // codigoBaja:'',
+    hrsGarantia:0,
     condicionFinal:'',
     serie:''
 
@@ -102,7 +102,7 @@ export default function Planta(props) {
             case 0:
                 return <InformacionPlanta fechaRecepcionado = {props.recepcionadoFecha}/>;
             case 1:
-                return  <Procesos/>;
+                return  <Procesos />;
             default:
                 return null;
         }
@@ -133,7 +133,6 @@ export default function Planta(props) {
     const submit = () =>{
         setDisable(true);
         const key = enqueueSnackbar('Procesando...',{persist:true, action:action,variant:"info"});
-        props.openModal(false);
         state.initialStatePlanta.recepcionesid = props.idRecepcion;
         state.initialStatePlanta.serie = props.serie;
         planta.ingresarPlanta(state)
@@ -141,10 +140,14 @@ export default function Planta(props) {
                 enqueueSnackbar('Guardado Correctamente',{variant:'success'});
                 setRecepcionados(update(recepcionados,{
                     $apply: rec => rec.filter( el => el.id !== String(props.idRecepcion))
-                }))
+                }));
+                props.openModal(false);
 
             })
-            .catch(err=>enqueueSnackbar(err.response?err.response.data.error.message:err.message,{variant:'error'}))
+            .catch(err=>{
+                enqueueSnackbar(err.response?err.response.data.error.message:err.message,{variant:'error'});
+                }
+            )
             .finally(() => {
                 setDisable(false);
                 closeSnackbar(key);

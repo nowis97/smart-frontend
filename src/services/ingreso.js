@@ -1,13 +1,10 @@
 import axios from 'axios';
-import Cookie from 'js-cookie';
+import Cookies from 'js-cookie';
+import auth from "./auth";
 import * as helpers from '../helpers/helpers'
 
 const URI = process.env.REACT_APP_API_URL;
 
-const headerJson = {
-    'Content-Type':'application/json',
-    'Authorization':'Bearer '+Cookie.get('token')
-};
 
 const headerMultipart = {'Content-Type':'multipart/form-data'};
 
@@ -16,12 +13,11 @@ function uploadImage(files,name) {
 
     const formData = new FormData();
     const file = files[0];
-    debugger;
     if (files.length===0) return {filename:''};
     formData.append('file',file,name +'.'+ file.name.split('.').pop());
 
     return axios.post(URI+'upload-image',formData,{
-        headers:{...headerMultipart,['Authorization']:'Bearer '+Cookie.get('token')
+        headers:{...headerMultipart,['Authorization']:'Bearer '+Cookies.get('token')
         }}).then(
         res => res.data
     ).catch(
@@ -50,13 +46,14 @@ const ingresarNeumatico = async ingreso =>{
         'guiaKaltire':'guiaKt'
     });
    return axios
-        .post(URI+'ingresos',ingreso,headerJson)
+        .post(URI+'ingresos',ingreso,{headers:auth.jsonHeader()})
 
 };
 
 const obtenerNeumaticos = async () =>{
     return await axios
-        .get(URI+'ingresados',headerJson);
+        .get(URI+'ingresados',{headers:auth.jsonHeader()
+            });
 };
 
 

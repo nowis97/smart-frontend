@@ -46,11 +46,11 @@ export default function Login(props) {
         auth.login(login.userId,login.password).then( async res =>{
 
             const result = res.data;
+            debugger;
             addContext('currentRoles',result.roles);
-            const roles = await auth.obtenerRoles();
 
             if('token' in result)
-                history.push({pathname:'/',state:{result,roles}});
+                history.push({pathname:'/',state:{result}});
         })
         .catch(err => {
             enqueueSnackbar(err.response ? err.response.data.error.message : err.message,{variant:'error'})

@@ -65,7 +65,7 @@ export default function InformacionPerformance(props) {
 
 
     const handleChangeAutoComplete = id => (e,value) =>{
-        debugger;
+
         console.log(e,value);
         setPerformance(prevState => {
             return {
@@ -88,7 +88,7 @@ export default function InformacionPerformance(props) {
         servicePerformance.ingresarNeumatico(performance).then(res =>{
             enqueueSnackbar(res.status + ': Neumatico Ingresado Correctamente',
             {variant:"success"});
-            debugger;
+
             setNeumaticos(prevState => [...prevState,res.data]);
             props.openModal(false);
 
@@ -110,7 +110,6 @@ export default function InformacionPerformance(props) {
     };
     const handleSubmit = (e) =>{
         e.preventDefault();
-        debugger;
         if (!isValid) {
             enqueueSnackbar('Campos no validos',{variant:"warning"});
             return;

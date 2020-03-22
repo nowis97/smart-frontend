@@ -1,16 +1,13 @@
 import axios from 'axios';
-import Cookie from 'js-cookie';
+import Cookies from 'js-cookie';
 import * as helpers from '../helpers/helpers'
 import * as _ from 'lodash';
-
+import auth from "./auth";
 const URI = process.env.REACT_APP_API_URL;
 
-const headerJson = {
-   'Content-Type':'application/json',
-   'Authorization':'Bearer '+Cookie.get('token')
-};
 
 const ingresarPlanta = planta =>{
+   debugger;
    planta = helpers.renameProps(planta,{'initialStatePlanta':'planta','initialStateRenovados':'renovados','initialStateReparaciones':'reparaciones'});
 
    planta.planta.garantia = planta.reparaciones.garantia;
@@ -23,7 +20,7 @@ const ingresarPlanta = planta =>{
    });
 
    if (planta.initialStateForms.renovado === false && planta.initialStateForms.reparacion === false)
-      return axios.post(URI+'trabajos',_.pick(planta,'planta'),headerJson);
+      return axios.post(URI+'trabajos',_.pick(planta,'planta'),{headers:auth.jsonHeader()});
 
 
    if (planta.initialStateForms.renovado){
@@ -39,7 +36,7 @@ const ingresarPlanta = planta =>{
       });
 
 
-      return axios.post(URI+'trabajos',_.pick(planta,'planta','renovados'),headerJson)
+      return axios.post(URI+'trabajos',_.pick(planta,'planta','renovados'),{headers:auth.jsonHeader()})
 
    }else{
       planta.reparaciones.preventiva = helpers.renameProps(planta.reparaciones.preventiva,{
@@ -63,7 +60,7 @@ const ingresarPlanta = planta =>{
          'hombro_133':'hombro'
       });
 
-      return axios.post(URI+'trabajos',_.pick(planta,'planta','reparaciones','initialStateForms'),headerJson)
+      return axios.post(URI+'trabajos',_.pick(planta,'planta','reparaciones','initialStateForms'),{headers:auth.jsonHeader()})
    }
 
 };

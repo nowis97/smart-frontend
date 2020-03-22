@@ -94,8 +94,8 @@ export default function Reporte() {
 
                             <Grid item xs={12} sm={5}>
                                 {submitted?
-                                    <Dropzone maxFiles={1} inputContent={"Arrastre los documentos excel o haga click para explorar"}
-                                              onSubmit={handleSubmit}  accept={fileType}  onChangeStatus={handleFile} />
+                                    <Dropzone maxFiles={1} inputContent={"Arrastre el documento excel o haga click para explorar"}
+                                              onSubmit={handleSubmit}  accept={fileType} submitButtonContent={"Importar"}  onChangeStatus={handleFile} />
                                     :null}
                             </Grid>
 

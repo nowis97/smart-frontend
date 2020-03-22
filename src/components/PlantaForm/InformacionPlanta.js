@@ -1,6 +1,6 @@
 import Grid from "@material-ui/core/Grid";
 import React, {useEffect} from "react";
-import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import {DatePicker, KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import TextField from "@material-ui/core/TextField";
 import {validationSchema} from '../../validators/InformacionPlanta';
@@ -15,12 +15,11 @@ import {addDays} from 'date-fns';
 
 export function InformacionPlanta(props) {
     const {state, dispatch} = React.useContext(PlantaContext);
-    const {plantas,codigosBajas,condicionFinal} = React.useContext(ResourceContext);
+    const {plantas,condicionFinal} = React.useContext(ResourceContext);
 
 
     const infoPlanta = state.initialStatePlanta;
-    const {errors,isValid} = useYup(infoPlanta,validationSchema,{validateOnChange:true});
-
+    let {errors,isValid} = useYup(infoPlanta,validationSchema,{validateOnChange:true});
 
     const handleChange = e => {
         e.preventDefault();
@@ -51,10 +50,13 @@ export function InformacionPlanta(props) {
 
 
     const handleChangeAutocomplete =id => (e,value) =>{
+        debugger;
+
         dispatch({type:'HANDLE_PLANTA_AUTOCOMPLETE',payload:{id,value}})
     };
 
     const getTextValue =(array,id) => array.find(x => x.id === id);
+
 
 
     return (
@@ -71,12 +73,17 @@ export function InformacionPlanta(props) {
                                   value={infoPlanta.planta}
                                   renderInput={params => (<TextField fullWidth {...params} required label={"Planta"}/>)}/>
                 </Grid>
-                {/*<Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
-                    <TextField id={"precio"} label={"Precio"}
-                               margin={"normal"}
-                               value={infoPlanta.precio}
+                <Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
+                    <TextField id={"hrsGarantia"} label={"Horas garantia"} margin={"normal"}
+                               fullWidth
+                               required
+                               type={"number"}
+                               error={Boolean(errors.hrsGarantia)}
+                               helperText={errors.hrsGarantia?errors.hrsGarantia:''}
+                               value={infoPlanta.hrsGarantia}
+
                                onChange={handleChange}/>
-                </Grid>*/}
+                </Grid>
 
                 <Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
                     <TextField id={"ordenTrabajo"} label={"Orden de Trabajo"} fullWidth
@@ -88,16 +95,9 @@ export function InformacionPlanta(props) {
                                onChange={handleChange}/>
                 </Grid>
 
-                {/*<Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
-                    <Autocomplete id={'codigoBaja'} style={{transform: 'translateY(16px)'}} options={codigosBajas} getOptionLabel={option => option.code}
-                                  inputValue={infoPlanta.codigoBaja}
-                                  onChange={handleChangeAutocomplete('codigoBaja')}
-                                  value={infoPlanta.codigoBaja}
-                                  renderInput={params => (<TextField fullWidth {...params} label={"Codigo de Baja"} required/>)}/>
-                </Grid>*/}
 
                 <Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
-                    <Autocomplete id={'condicionFinal'} style={{marginTop:'17px'}}  options={condicionFinal} getOptionLabel={option => option.nombre}
+                    <Autocomplete id={'condicionFinal'} style={{marginTop:'14px'}}  options={condicionFinal} getOptionLabel={option => option.nombre}
                                   inputValue={getTextValue(condicionFinal,infoPlanta.condicionFinal)? getTextValue(condicionFinal,infoPlanta.condicionFinal).nombre:''}
                                   value={infoPlanta.condicionFinal}
                                   onChange={handleChangeAutocomplete('condicionFinal')} renderInput={params => (
@@ -117,12 +117,12 @@ export function InformacionPlanta(props) {
 
                 <Grid item xs={12} sm={6} lg={4} xl={3} md={3}>
                     {<MuiPickersUtilsProvider utils={DateFnsUtils }>
-                        <KeyboardDatePicker id={"mesProduccion"} label={"Fecha de Producción"}
+                        <DatePicker id={"mesProduccion"} label={"Fecha de Producción"}
                                             format={"dd/MM/yyyy"}
                                             style = {{marginTop:'15px'}}
                                             value={infoPlanta.mesProduccion}
                                             minDate={addDays(new Date(props.fechaRecepcionado),1)}
-                                            KeyboardButtonProps={{'aria-label': 'change-date'}} showTodayButton
+                                            KeyboardButtonProps={{'aria-label': 'change-date'}}
                                             onChange={(e) => handleChangeDates(e, 'mesProduccion')}/>
                     </MuiPickersUtilsProvider>}
                 </Grid>

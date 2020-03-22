@@ -1,14 +1,10 @@
 import axios from 'axios';
-import Cookie from 'js-cookie';
-import * as helpers from '../helpers/helpers'
+import auth from "./auth";
 
 
 const URI = process.env.REACT_APP_API_URL;
 
-const headerJson = {
-    'Content-Type':'application/json',
-    'Authorization':'Bearer '+Cookie.get('token')
-};
+
 
 
 const ingresarNeumatico = neumatico =>{
@@ -19,9 +15,9 @@ const ingresarNeumatico = neumatico =>{
         hrsActual:parseInt(neumatico.hrsActual),
         estadoActual:neumatico.estadoActual,
         fechaUltimaInspeccion: neumatico.fechaUltimaInspeccion
-    },headerJson);
+    },{headers:auth.jsonHeader()});
 };
 
-const obtenerNeumaticos = () => axios.get(URI+'performance',headerJson);
+const obtenerNeumaticos = () => axios.get(URI+'performance',{headers:auth.jsonHeader()});
 
 export {ingresarNeumatico,obtenerNeumaticos};

@@ -18,9 +18,9 @@ export const UsersList = props => (
 );
 
 export const UsersCreate = props => (
-    <Create {...props} sucessMessage = "Create Sucess">
-        <SimpleForm>
-            <TextInput source = "nombre" label = "Name" validate={required()} />
+    <Create {...props} successMessage = "Create Sucess">
+        <SimpleForm redirect={"list"}>
+            <TextInput source = "nombre" label = "ID" validate={required()} />
             <TextInput source = "password" label = "Password" type={"password"} validate={required()} />
             <TextInput source = "email" label = "E-mail" type={"email"} validate={required()} />
         </SimpleForm>
@@ -30,7 +30,7 @@ export const UsersCreate = props => (
 
 
 export const UsersEdit = props => {
-  return <Edit {...props} sucessmessage = "Update Sucess">
+  return <Edit {...props} successMessage = "Update Sucess">
         <SimpleForm redirect>
             <TextInput disabled label="Id" source="id"/>
             <TextInput source="nombre" label="Name" validate={required()}/>

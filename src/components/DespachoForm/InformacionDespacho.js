@@ -24,14 +24,15 @@ import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 
-const initialStateDespacho = {
-    guiaDespacho: '',
-    patente:'',
-    fecha:(new Date(Date.now())),
-    comentarios:''
-};
 
 export function InformacionDespacho(props) {
+    const initialStateDespacho = {
+        guiaDespacho: '',
+        patente:'',
+        fecha:( addDays(new Date( props.despacho.despacho[6]),1)),
+        comentarios:''
+    };
+
 
 
     const {enqueueSnackbar,closeSnackbar} =useSnackbar();
@@ -70,7 +71,7 @@ export function InformacionDespacho(props) {
 
                 setNeumaticosPlantas(update(neumaticosPlantas,{
                     $apply: rec => rec.filter( el => {
-                        debugger;
+
                         return  el.id !== props.despacho.despacho[0]
                     })
                 }));

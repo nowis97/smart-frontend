@@ -153,14 +153,14 @@ export default function Reporte() {
 
         }else {
             serviceReporte.reporte(reporteOptions).then(res =>{
-                debugger;
+
                 if (res.data.length ===0) throw new Error('No hay datos');
                 setCols(Object.keys(res.data[0]));
                 setReporte(res.data);
 
             })
                 .catch(err=>{
-                    debugger;
+
                     enqueueSnackbar(err.response? err.response.data.error.message:err.message,{variant:"error",autoHideDuration:8000})
                 })
                 .finally(() => {
@@ -173,7 +173,7 @@ export default function Reporte() {
     };
     const handleSubmit = (e) =>{
         e.preventDefault();
-        debugger;
+
         if (!isValid) {
             enqueueSnackbar('Campos no validos',{variant:"warning"});
             return;

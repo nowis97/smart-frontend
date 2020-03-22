@@ -43,6 +43,7 @@ export default function InformacionNeumatico(props) {
 
 
     React.useEffect(()=>{
+
         resources.obtenerCausaRecepcion().then(res => setCausasRecepcion(res));
         resources.obtenerMarcas().then(res => setMarcas(res)).catch(()=>setMarcas([]))
     },[]);
@@ -56,7 +57,7 @@ export default function InformacionNeumatico(props) {
         medida: infoNeumatico? infoNeumatico.medida:'',
         modelo: infoNeumatico? infoNeumatico.modelo:'',
         compuesto:infoNeumatico? infoNeumatico.compuesto:'',
-        fecha: (new Date(Date.now())),
+        fecha: (addDays(new Date(props.ingreso[6]),1)),
         ingresosid:props.ingreso[0],
         neumaticosserie:props.ingreso[1],
         numeroCatalogo:infoNeumatico? infoNeumatico.numeroCatalogo:0
@@ -106,7 +107,7 @@ export default function InformacionNeumatico(props) {
     React.useEffect(()=>{
        if (neumatico.modelo !== '' && !props.neumaticoEncontrado ){
            resources.obtenerNumeroCatalogo(neumatico.marca,neumatico.medida,neumatico.modelo).then((res=>{
-               debugger;
+
                if (res.length>1) {
                    setCompuestoField(true);
                    resources.obtenerCompuestos(neumatico.marca,neumatico.medida,neumatico.modelo).then(res=>setCompuestos(res))
@@ -142,7 +143,7 @@ export default function InformacionNeumatico(props) {
         const key = enqueueSnackbar('Procesando...',{variant:"info",persist:true,action:action});
         recepcion.ingresarRecepcion(neumatico)
             .then(res =>{
-                debugger;
+
                 if (res instanceof Error) {
                     enqueueSnackbar(res.message,{variant: "error"});
                     return;

@@ -91,7 +91,9 @@ export default function Performance() {
 
     useEffect(()=>{
         performance.obtenerNeumaticos().then(res=> setNeumaticos(res.data))
-            .catch(err => enqueueSnackbar(err.response? err.response.data.error.message:err.message,{variant:"error"}))
+            .catch(err => {
+                debugger;
+                enqueueSnackbar(err.response? err.response.data.error.message:err.message,{variant:"error"})})
     },[]);
 
     return (

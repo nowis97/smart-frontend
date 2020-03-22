@@ -1,10 +1,11 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Checkbox, Container, FormControlLabel, FormGroup, RadioGroup, Switch} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import TipoReparacion from "./TipoReparacion";
 import {PlantaContext} from "./Planta";
 import Renovado from "./Renovado";
 import Radio from "@material-ui/core/Radio";
+import TextField from "@material-ui/core/TextField";
 
 
 export default function (props) {
@@ -19,16 +20,22 @@ export default function (props) {
         dispatch({type: 'HANDLE_PROCESOS_GARANTIA', payload: {name, e}})
     };
     const selectTipoProceso = () => {
-        if (tipoProceso.reparacion) {
+        if (tipoProceso.reparacion || state.initialStatePlanta.condicionFinal ===2) {
 
             return <TipoReparacion/>;
-        } else if (tipoProceso.renovado) {
+        } else if (tipoProceso.renovado || state.initialStatePlanta.condicionFinal ===1) {
             return <Renovado/>;
         } else {
 
             return null;
         }
     };
+
+    useEffect(()=>{
+        dispatch({type: 'HANDLE_FORM_STATUS',payload: {value:'reparacion',e:{checked:state.initialStatePlanta.condicionFinal ===2}}});
+        dispatch({type: 'HANDLE_FORM_STATUS',payload: {value:'renovado',e:{checked:state.initialStatePlanta.condicionFinal ===1}}});
+
+    },[]);
 
     const handleChange = (event,value) => {
         event.preventDefault();
@@ -50,7 +57,8 @@ export default function (props) {
                                               "Reparacion"
                                           }
                                           value={'reparacion'}
-                                          checked={tipoProceso.reparacion || false}
+                                          checked={state.initialStatePlanta.condicionFinal ===2 || false}
+                                          disabled
 
                         />
 
@@ -62,7 +70,8 @@ export default function (props) {
                                               "Renovado"
                                           }
                                           value={'renovado'}
-                                          checked={tipoProceso.renovado || false}
+                                          checked={state.initialStatePlanta.condicionFinal ===1 || false}
+                                          disabled
                         />
 
                     </RadioGroup>
@@ -79,6 +88,7 @@ export default function (props) {
                                           value={state.initialStateReparaciones.garantia}
                         />
                     </Grid>
+
                 </Grid>
 
                     {selectTipoProceso()}

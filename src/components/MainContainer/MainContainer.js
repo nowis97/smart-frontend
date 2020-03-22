@@ -42,7 +42,7 @@ import {ResourceContext} from "../utils/ResourceContext";
 
 function MainContainer(props) {
     const history = useHistory();
-    const {roles} = React.useContext(ResourceContext);
+    const {currentRoles} = React.useContext(ResourceContext);
 
 
     useEffect(() =>{
@@ -59,6 +59,14 @@ function MainContainer(props) {
     const [title, setTitle] = React.useState('SMART');
 
 
+    const showButtonAdmin = () => {
+        if (currentRoles){
+            if(currentRoles.includes('superuser')) {
+                return true;
+            }
+        }
+        return false
+    };
 
 
     const handleDrawerOpen = () => {
@@ -107,10 +115,10 @@ function MainContainer(props) {
                     <Typography variant={"subtitle2"} gutterBottom color={"inherit"} noWrap className={classes.subTitle}>
                         {user?user.toUpperCase():""}
                     </Typography>
-                    { <IconButton color="inherit" edge={"end"} style={{transform:'translateX(10px)'}}
+                    { showButtonAdmin()? <IconButton color="inherit" edge={"end"} style={{transform:'translateX(10px)'}}
                                   onClick={ () => history.push('/admin')} >
                         <SupervisorAccountIcon />
-                    </IconButton>}
+                    </IconButton>:null}
 
                      <IconButton color="inherit" edge={"end"} style={{transform:'translateX(10px)'}}
                                  onMouseEnter={handlePopoverOpen}

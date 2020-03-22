@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Cookie from 'js-cookie';
+import Cookies from 'js-cookie';
 const [
     GET_LIST,
     CREATE,
@@ -21,12 +21,12 @@ const [
 ];
 
 const lb4Provider = (apiUrl, headers = () => {}, idParamApi='_id', idParamAdmin='id', ftch=fetch) => {
-    debugger;
+
     const getOptions = async (type, body) => {
         const options = {
             headers: {
                 'Accept': 'application/json',
-                'Authorization':'Bearer '+Cookie.get('token'),
+                'Authorization':'Bearer '+Cookies.get('token'),
                 ...(await headers())
             }
         };

@@ -24,12 +24,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 
 
-const initialStateFacturacion = {
-    numeroFactura: '',
-    estadoPago:(new Date(Date.now())),
-    fecha:(new Date(Date.now())),
-
-};
 
 export function InformacionFacturacion(props) {
     const {ultimaFactura,setUltimaFactura} = props.ultimaFactura;
@@ -40,6 +34,14 @@ export function InformacionFacturacion(props) {
     const {despachados,setDespachados} = props.despachados;
 
     const {despachado} = props.despachado;
+
+
+    const initialStateFacturacion = {
+        numeroFactura: '',
+        estadoPago:(new Date(Date.now())),
+        fecha:(addDays(new Date(despachado[5]),1)),
+
+    };
 
     const [factura,setFactura] = React.useState( ultimaFactura? ultimaFactura: initialStateFacturacion);
     const {errors,isValid} =useYup(factura,validationSchema,{validateOnChange:true});
@@ -56,7 +58,6 @@ export function InformacionFacturacion(props) {
             .then(res => {
                 setDespachados(update(despachados,{
                     $apply: rec => rec.filter( el => {
-                        debugger;
                         return  el.serie !== despachado[0]
                     })
                 }));

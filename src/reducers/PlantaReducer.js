@@ -79,7 +79,9 @@ const plantaReducer = (state, action)=>{
                 }
             });
 
+
         case 'HANDLE_FORM_STATUS':
+            debugger;
             id = action.payload.value;
             value = action.payload.e.checked;
             if (id ==='reparacion'){
@@ -97,6 +99,8 @@ const plantaReducer = (state, action)=>{
             });
 
         case 'HANDLE_VALIDATOR':
+
+
             return update(state,{initialStateValidations: {$set:action.payload}
             });
         default:

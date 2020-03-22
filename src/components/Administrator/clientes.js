@@ -16,7 +16,7 @@ export const ClientesList = props => (
             <TextField source="compania" label={"Compañia"} />
             <NumberField source="latitud" label={"Latitud"} />
             <NumberField source="longitud" label={"Longitud"} />
-            <BooleanField source="tieneContrato" label={"Contrato"} />
+            <BooleanField source="tieneContrato" defaultValue ={false} label={"Contrato"} />
 
             <ReferenceField source="regionesid" reference="regiones" label="Region" >
                 <TextField source="nombre" />
@@ -31,18 +31,18 @@ export const ClientesList = props => (
 );
 
 export const ClientesCreate = props => (
-    <Create {...props} successMessage = "Create Sucess">
+    <Create {...props} successMessage = "Create Success">
         <SimpleForm redirect={"list"}>
             <TextInput source="rut" label={"RUT"}  />
             <TextInput source="faena" label={"Cliente"} />
             <TextInput source="compania" label={"Compañia"} />
             <NumberInput source="latitud" label={"Latitud"} />
             <NumberInput source="longitud" label={"Longitud"} />
-            <BooleanInput source="tiene_contrato" label={"Contrato"} />
-            <ReferenceInput source="tiposMinasid" reference="tipo-minas" label="Tipo Mina" >
+            <BooleanInput source="tieneContrato" defaultValue={false} label={"Contrato"} />
+            <ReferenceInput source="tipoMinasid" reference="tipo-minas" label="Tipo Mina" >
                 <SelectInput optionText="nombre"  />
             </ReferenceInput>
-            <ReferenceInput source="regionesid" reference="regiones" label="Tipo Mina" >
+            <ReferenceInput source="regionesid" reference="regiones" label="Regiones" >
                 <SelectInput optionText="nombre"  />
             </ReferenceInput>
         </SimpleForm>
@@ -59,7 +59,7 @@ export const ClientesEdit = props => {
             <TextInput source="compania" label={"Compañia"} />
             <NumberInput source="latitud" label={"Latitud"} />
             <NumberInput source="longitud" label={"Longitud"} />
-            <BooleanInput source="tiene_contrato" label={"Contrato"} />
+            <BooleanInput defaultValue={false} source="tieneContrato" label={"Contrato"} />
             <ReferenceInput source="tipoMinasid" reference="tipo-minas" label="Tipo Mina" >
                 <SelectInput optionText="nombre"  />
             </ReferenceInput>

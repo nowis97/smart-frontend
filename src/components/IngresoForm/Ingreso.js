@@ -270,7 +270,7 @@ export default function (props) {
                             </Grid>}
                             <Grid item xs={12} sm={5}   style={{marginTop: '22px'}}>
                                 {submitted?
-                                <Dropzone maxFiles={1} inputContent={"Arrastre las imagenes o haga click para explorar"} initialFiles={ingreso.fotoNeumatico}  accept={'image/*'}  onChangeStatus={handleImages} />
+                                <Dropzone maxFiles={1} inputContent={"Arrastre la imagen o haga click para explorar"} initialFiles={ingreso.fotoNeumatico}  accept={'image/*'}  onChangeStatus={handleImages} />
                                 :null}
                             </Grid>
                             <Grid item xs  >

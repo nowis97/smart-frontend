@@ -18,13 +18,13 @@ export const UsersRolesList = props => (
 );
 
 export const UsersRolesCreate = props => (
-    <Create {...props} successMessage={"Rol assigned"}>
+    <Create {...props} successMessage={"Role assigned"}>
         <SimpleForm {...props} redirect={"list"}>
 
-            <ReferenceInput source="usersid" reference="users" label="Users">
+            <ReferenceInput source="usersid" reference="users" label="User">
                 <SelectInput optionText="nombre" />
             </ReferenceInput>
-            <ReferenceInput source="rolesid" reference="roles" label="Roles" >
+            <ReferenceInput source="rolesid" reference="roles" label="Role" >
                 <SelectInput optionText="nombre"  />
             </ReferenceInput>
         </SimpleForm>
@@ -34,7 +34,7 @@ export const UsersRolesCreate = props => (
 export const UsersRolesEdit = props => {
 
     return <Edit {...props}>
-        <SimpleForm {...props} >
+        <SimpleForm {...props} redirect >
             <ReferenceInput source="usersid" reference="users" label="Users">
                 <SelectInput optionText="nombre" />
             </ReferenceInput>
