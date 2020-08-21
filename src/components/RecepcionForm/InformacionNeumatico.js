@@ -82,11 +82,11 @@ export default function InformacionNeumatico(props) {
     };
     const handleChangeAutoComplete = id => (e,value) => {
         console.log(e, value);
-        value = value? Object.values(value)[0]:null;
+        value = value? Object.values(value)[0]:"";
 
         setNeumatico(prevState => {
             return {
-                ...prevState, [id]: value ? value : null
+                ...prevState, [id]: value ? value : ""
             }
         });
 

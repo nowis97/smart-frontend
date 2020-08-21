@@ -14,4 +14,8 @@ const importarExcel = data => {
 
 };
 
-export {importarExcel}
+const getMaple = () => axios.get(URI+'maple',{...headerMultipart,['Authorization']:auth.jsonHeader().Authorization})
+
+const ingresarMaple = data => axios.post(URI+'maple',data,{...headerMultipart,['Authorization']:auth.jsonHeader().Authorization})
+
+export {importarExcel,getMaple,ingresarMaple}

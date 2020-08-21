@@ -29,7 +29,7 @@ import Despacho from "../DespachoForm/Despacho";
 import Facturacion from "../FacturacionForm/Facturacion";
 import Reporte from "../ReporteForm/Reporte";
 import Performance from "../PerformanceForm/Performance";
-import Importar from "../ImportarForm/Importar";
+import Importar from "../MapleForm/Importar";
 import Badge from "@material-ui/core/Badge";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import auth from "../../services/auth";
@@ -37,6 +37,7 @@ import Popover from "@material-ui/core/Popover";
 import {Administrator} from "../Administrator/Administrator";
 import {PrivateRoute} from "../utils/PrivateRoute";
 import {ResourceContext} from "../utils/ResourceContext";
+import Maple from "../MapleForm/Maple";
 
 
 
@@ -183,7 +184,7 @@ function MainContainer(props) {
                         <PrivateRoute path= "/facturacion" roles={["facturacion","superuser"]} component={Facturacion}/>
                         <PrivateRoute path= "/reportes" roles={["reportes","superuser"]} component={Reporte}/>
                         <PrivateRoute path="/performance" roles={["performance","superuser"]} component={Performance}/>
-                        <PrivateRoute path="/importar" roles={["importar","superuser"]} component={Importar}/>
+                        <PrivateRoute path="/maple" roles={["importar","superuser"]} component={Maple}/>
                     </Switch>
 
 

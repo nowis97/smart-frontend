@@ -63,7 +63,7 @@ export function InformacionFacturacion(props) {
                 }));
                 closeSnackbar(key);
                 setDisable(false);
-                enqueueSnackbar('Neumatico Despachado Correctamente',{variant:'success'});
+                enqueueSnackbar('Neumático facturado correctamente',{variant:'success'});
                 props.openModal(false);
                 setUltimaFactura(factura);
 
