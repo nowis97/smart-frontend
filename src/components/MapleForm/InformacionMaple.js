@@ -36,17 +36,13 @@ export default function InformacionMaple(props){
         codProducto:'',
         nombreProducto:''
     };
-    console.log(props);
-    console.log(facturadoRenovado, facturadosRenovados)
-    debugger;
 
-    const [maple,setMaple] = React.useState( setMapleAnterior? setMapleAnterior: initialStateMaple);
+    const [maple,setMaple] = React.useState( mapleAnterior? mapleAnterior: initialStateMaple);
     const {errors,isValid} =useYup(maple,validationSchema,{validateOnChange:true});
     const [openDialog,setOpenDialog] = React.useState(false);
 
 
     const clearForm = () => setMaple(initialStateMaple);
-
     const submit = () =>{
         maple.serie = facturadoRenovado[0];
         maple.numeroFactura = facturadoRenovado[3];
@@ -58,9 +54,8 @@ export default function InformacionMaple(props){
         const key = enqueueSnackbar('Procesando...',{variant:"info",persist:true,action:action});
         serviceMaple.ingresarMaple(maple)
             .then(res => {
-                setFacturadoRenovado(update(facturadosRenovados,{
+                setFacturadosRenovados(update(facturadosRenovados,{
                     $apply: rec => rec.filter( el => {
-                        debugger;
                         return  el.serie !== facturadoRenovado[0]
                     })
                 }));

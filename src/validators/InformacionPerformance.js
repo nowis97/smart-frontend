@@ -7,8 +7,8 @@ export const validationSchema = yup.object().shape({
     rtdActual:yup.number('Debe ser un numero').min(0,'Debe ser mayor o igual a cero')
         .max(200,'Debe ser menor a 200'),
     kmsActual:yup.number('Debe ser un numero').min(0,'Debe ser mayor o igual a cero')
-        .max(15000,'Debe ser menor a 15000'),
+        .max(300000,'Debe ser menor a 300000'),
     hrsActual:yup.number('Debe ser un numero').min(0,'Debe ser mayor o igual a cero')
-        .max(15000,'Debe ser menor a 15000')
+        .max(300000,'Debe ser menor a 300000')
 
 });
