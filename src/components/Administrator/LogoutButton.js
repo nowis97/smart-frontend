@@ -7,7 +7,7 @@ import {useHistory} from 'react-router-dom';
 
 const LogoutButton = forwardRef((props, ref) => {
     const history = useHistory();
-    const handleClick = () =>{auth.logout(); history.replace('/login')};
+    const handleClick = () =>{auth.logout(); history.push('/login')};
     return (
         <MenuItem
             onClick={handleClick}
